@@ -7,7 +7,9 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Price;
 use App\Models\TshirtImage;
-
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderPendingMail;
+use App\Models\User;
 class CheckoutController extends Controller
 {
     public function index()
@@ -119,6 +121,8 @@ class CheckoutController extends Controller
             ];
         }
 
+        
+
         $order = Order::create([
             'customer_id' => $customerId, 
             'status' => 'pending',
@@ -130,11 +134,18 @@ class CheckoutController extends Controller
             'payment_ref' => $request->payment_ref,
         ]);
 
+        
         foreach ($itemsToSave as $itemData) {
             $itemData['order_id'] = $order->id;
             OrderItem::create($itemData);
         }
 
+        $user = User::find($customerId);
+        if ($user) {
+            Mail::to($user->email)->send(new OrderPendingMail($order));
+        }
+
+        session()->forget('cart');
         session()->forget('cart');
 
         return redirect()->route('checkout.success');
