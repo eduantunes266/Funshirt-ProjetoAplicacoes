@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TshirtImage;
 use App\Models\Category;
+use App\Models\Price;
 
 class CatalogController extends Controller
 {
     public function index(Request $request)
     {
         $categories = Category::all();
+        $price = Price::first(); // Vai buscar a linha única de preços
+        
         $query = TshirtImage::whereNull('customer_id');
 
         if ($request->filled('search')) {
@@ -23,6 +26,6 @@ class CatalogController extends Controller
 
         $tshirts = $query->get();
 
-        return view('catalog.index', compact('tshirts', 'categories'));
+        return view('catalog.index', compact('tshirts', 'categories', 'price'));
     }
 }

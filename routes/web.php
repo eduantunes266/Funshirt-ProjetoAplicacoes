@@ -36,3 +36,5 @@ Route::post('/carrinho/adicionar/{id}', [CartController::class, 'add'])->name('c
 
 Route::post('/carrinho/remover/{id}', [CartController::class, 'remove'])->name('cart.remove');
 require __DIR__.'/auth.php';
+
+Route::post('/personalizar', [CustomShirtController::class, 'store'])->name('custom.store');

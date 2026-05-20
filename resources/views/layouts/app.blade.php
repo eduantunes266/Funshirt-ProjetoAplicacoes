@@ -14,28 +14,26 @@
     </head>
     <body class="font-sans antialiased bg-gray-100">
         <div class="min-h-screen">
-            
-            <nav class="bg-white shadow mb-4 p-4 flex justify-between items-center max-w-7xl mx-auto rounded-b-lg">
-                <div class="flex gap-6 font-semibold text-gray-700">
-                    <a href="{{ url('/') }}" class="hover:text-blue-600">Catálogo</a>
-                    <span class="text-gray-300">|</span>
-                    <a href="{{ route('cart.index') }}" class="hover:text-blue-600">Carrinho</a>
-                    <a href="{{ route('custom.create') }}">Personalizar</a>
-                </div>
-                
-                <div class="flex gap-4 font-semibold text-gray-700">
-                    @auth
-                        <a href="{{ url('/dashboard') }}" class="hover:text-blue-600 text-gray-950">Painel ({{ Auth::user()->name }})</a>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" class="hover:text-red-600 text-red-500">Sair</button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="hover:text-blue-600">Login</a>
-                        <a href="{{ route('register') }}" class="hover:text-blue-600">Registo</a>
-                    @endauth
-                </div>
-            </nav>
+          <nav style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <div style="display: flex; gap: 20px; font-weight: bold; color: #333;">
+        <a href="/" style="text-decoration: none; color: inherit;">Catálogo</a>
+        <a href="/carrinho" style="text-decoration: none; color: inherit;">Carrinho</a>
+        <a href="/personalizar" style="text-decoration: none; color: inherit;">Personalizar</a>
+    </div>
+    
+    <div style="display: flex; gap: 15px; font-weight: bold; color: #333;">
+        @auth
+            <a href="/dashboard" style="text-decoration: none; color: inherit;">Painel</a>
+            <form method="POST" action="/logout" style="margin: 0; display: inline;">
+                @csrf
+                <button type="submit" style="background: none; border: none; color: #dc3545; font-weight: bold; cursor: pointer; padding: 0; font-size: 16px;">Sair</button>
+            </form>
+        @else
+            <a href="/login" style="text-decoration: none; color: inherit;">Login</a>
+            <a href="/register" style="text-decoration: none; color: inherit;">Registo</a>
+        @endauth
+    </div>
+</nav>
 
             @isset($header)
                 <header class="bg-white shadow max-w-7xl mx-auto mb-4 rounded-lg">
