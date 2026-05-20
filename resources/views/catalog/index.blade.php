@@ -28,17 +28,21 @@ use Illuminate\Support\Str;
 
     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
         @foreach($tshirts as $tshirt)
-            <div style="border: 1px solid #ccc; padding: 15px; width: 230px; height: 430px; text-align: center; display: flex; flex-direction: column;">
+            <div style="border: 1px solid #ccc; padding: 15px; width: 230px; height: 450px; text-align: center; display: flex; flex-direction: column;">
                 <img src="{{ asset('storage/tshirt_images/' . $tshirt->image_url) }}" alt="{{ $tshirt->name }}" style="width: 100%; height: 220px; object-fit: contain;">
                 
                 <h3>{{ $tshirt->name }}</h3>
                 
-                <p style="height: 70px; overflow: hidden; font-size: 14px; color: #555;">
+                <p style="height: 60px; overflow: hidden; font-size: 14px; color: #555; margin-bottom: 5px;">
                     {{ Str::limit($tshirt->description, 90) }}
                 </p>
                 
-                <p style="font-size: 18px; font-weight: bold; color: #0056b3; margin: 10px 0;">
+                <p style="font-size: 18px; font-weight: bold; color: #0056b3; margin: 5px 0 0 0;">
                     {{ number_format($price->unit_price_catalog, 2, ',', ' ') }} €
+                </p>
+                
+                <p style="font-size: 11px; color: #28a745; font-weight: bold; margin: 0 0 10px 0;">
+                    Leva {{ $price->qty_discount }} ou mais por {{ number_format($price->unit_price_catalog_discount, 2, ',', ' ') }} € cada!
                 </p>
                 
                 <form action="{{ route('cart.add', $tshirt->id) }}" method="POST" style="margin-top: auto;">

@@ -38,3 +38,9 @@ Route::post('/carrinho/remover/{id}', [CartController::class, 'remove'])->name('
 require __DIR__.'/auth.php';
 
 Route::post('/personalizar', [CustomShirtController::class, 'store'])->name('custom.store');
+
+use App\Http\Controllers\CheckoutController;
+
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/encomenda-sucesso', [CheckoutController::class, 'success'])->name('checkout.success');
