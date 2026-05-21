@@ -16,24 +16,33 @@
         <div class="min-h-screen">
           <nav style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
     <div style="display: flex; gap: 20px; font-weight: bold; color: #333;">
-        <a href="/" style="text-decoration: none; color: inherit;">Catálogo</a>
-        <a href="/carrinho" style="text-decoration: none; color: inherit;">Carrinho</a>
-        <a href="/personalizar" style="text-decoration: none; color: inherit;">Personalizar</a>
-        <a href="{{ route('orders.index') }}" style="color: #4a5568; text-decoration: none; font-weight: 500; padding: 8px 12px; border-radius: 4px;">
-    Gestão de Encomendas
-</a>
-    </div>
-    
-    <div style="display: flex; gap: 15px; font-weight: bold; color: #333;">
+        <a href="{{ route('home') }}" style="text-decoration: none; color: inherit;">Catálogo</a>
+        <a href="{{ route('cart.index') }}" style="text-decoration: none; color: inherit;">Carrinho</a>
+        <a href="{{ route('custom.create') }}" style="text-decoration: none; color: inherit;">Personalizar</a>
+
         @auth
-            <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; color: inherit;">Painel</a>
+            @if (auth()->user()->isEmployee() || auth()->user()->isAdmin())
+                <a href="{{ route('orders.index') }}" style="text-decoration: none; color: inherit;">Gestão de Encomendas</a>
+            @endif
+            @if (auth()->user()->isAdmin())
+                <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; color: inherit;">Painel</a>
+                <a href="{{ route('admin.staff.index') }}" style="text-decoration: none; color: inherit;">Utilizadores</a>
+            @endif
+        @endauth
+    </div>
+
+    <div style="display: flex; gap: 15px; align-items: center; font-weight: bold; color: #333;">
+        @auth
+            <a href="{{ route('profile.edit') }}" style="text-decoration: none; color: inherit;">
+                {{ auth()->user()->isEmployee() ? 'A minha conta' : 'Perfil' }}
+            </a>
             <form method="POST" action="{{ route('logout') }}" style="margin: 0; display: inline;">
                 @csrf
                 <button type="submit" style="background: none; border: none; color: #dc3545; font-weight: bold; cursor: pointer; padding: 0; font-size: 16px;">Sair</button>
             </form>
         @else
-            <a href="/login" style="text-decoration: none; color: inherit;">Login</a>
-            <a href="/register" style="text-decoration: none; color: inherit;">Registo</a>
+            <a href="{{ route('login') }}" style="text-decoration: none; color: inherit;">Login</a>
+            <a href="{{ route('register') }}" style="text-decoration: none; color: inherit;">Registo</a>
         @endauth
     </div>
 </nav>

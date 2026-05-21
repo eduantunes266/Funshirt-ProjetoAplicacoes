@@ -50,6 +50,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Utilizadores bloqueados nao podem aceder a plataforma.
+        if (Auth::user()->blocked) {
+            Auth::logout();
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => 'A sua conta esta bloqueada. Contacte a administracao da FunShirt.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

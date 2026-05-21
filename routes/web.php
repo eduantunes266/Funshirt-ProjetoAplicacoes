@@ -20,12 +20,8 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/faturacao', [ProfileController::class, 'updateBilling'])->name('profile.billing.update');
 });
-
-Route::get('/admin/dashboard', function () {
-    return 'Bem-vindo ao painel de administração da FunShirt!';
-})->middleware(['auth', 'admin']);
 
 use App\Http\Controllers\CartController;
 
@@ -54,6 +50,34 @@ Route::get('/encomendas/{id}', [OrderManagementController::class, 'show'])->name
 
 Route::put('/encomendas/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('orders.updateStatus');
 
+use App\Http\Controllers\ReceiptController;
+
+// Recibo PDF - acesso restrito pela OrderPolicy (cliente dono ou administrador)
+Route::get('/recibos/{order}', [ReceiptController::class, 'download'])
+    ->middleware('auth')
+    ->name('receipts.download');
+
 use App\Http\Controllers\DashboardController;
 
-Route::get('/painel', [DashboardController::class, 'index'])->name('admin.dashboard');
+Route::get('/painel', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'admin'])
+    ->name('admin.dashboard');
+
+use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\AccountStatusController;
+
+// Area de administracao: gestao de utilizadores (G1)
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Funcionarios e administradores
+    Route::resource('staff', StaffController::class)
+        ->parameters(['staff' => 'staff'])
+        ->except(['show']);
+
+    // Clientes
+    Route::get('clientes', [CustomerController::class, 'index'])->name('customers.index');
+    Route::delete('clientes/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+
+    // Bloquear / desbloquear qualquer conta
+    Route::patch('contas/{user}/bloqueio', AccountStatusController::class)->name('accounts.toggle-block');
+});

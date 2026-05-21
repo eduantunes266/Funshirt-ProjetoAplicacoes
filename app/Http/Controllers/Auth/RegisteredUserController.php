@@ -33,6 +33,7 @@ public function store(Request $request): RedirectResponse
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'gender' => ['required', 'in:M,F'],
         'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
     ]);
 
@@ -41,7 +42,7 @@ public function store(Request $request): RedirectResponse
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'user_type' => 'C',
-        'gender' => 'M', 
+        'gender' => $request->gender,
         'blocked' => 0,
     ]);
 

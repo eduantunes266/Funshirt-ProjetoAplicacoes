@@ -45,6 +45,16 @@
                         </form>
                     @endif
                 </div>
+
+                @if($order->status === 'closed' && $order->receipt_url)
+                    @can('downloadReceipt', $order)
+                        <p style="margin: 15px 0 0 0;">
+                            <a href="{{ route('receipts.download', $order->id) }}" style="display: inline-block; background-color: #3182ce; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
+                                Descarregar recibo (PDF)
+                            </a>
+                        </p>
+                    @endcan
+                @endif
             </div>
 
             <div style="flex: 1; padding: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">

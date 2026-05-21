@@ -2,59 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CustomerBillingRequest;
 use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Mostra o formulario de perfil do utilizador autenticado.
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'customer' => $user->isCustomer() ? $user->customer : null,
         ]);
     }
 
     /**
-     * Update the user's profile information.
+     * Atualiza os dados pessoais (nome, email, genero e foto de perfil).
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->safe()->only(['name', 'email', 'gender']));
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Alterar o email obriga a nova verificacao.
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        if ($request->hasFile('photo')) {
+            // Remove a foto antiga (exceto o avatar partilhado).
+            if ($user->photo_url && $user->photo_url !== 'anonymous.png') {
+                Storage::disk('public')->delete('photos/'.$user->photo_url);
+            }
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+            $file = $request->file('photo');
+            $filename = Str::uuid().'.'.$file->extension();
+            $file->storeAs('photos', $filename, 'public');
+            $user->photo_url = $filename;
+        }
+
+        $user->save();
+
+        return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**
-     * Delete the user's account.
+     * Atualiza os dados de faturacao predefinidos (apenas clientes).
      */
-    public function destroy(Request $request): RedirectResponse
+    public function updateBilling(CustomerBillingRequest $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
+        $request->user()->customer()->updateOrCreate([], $request->validated());
 
-        $user = $request->user();
-
-        Auth::logout();
-
-        $user->delete();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return Redirect::to('/');
+        return redirect()->route('profile.edit')->with('status', 'billing-updated');
     }
 }
