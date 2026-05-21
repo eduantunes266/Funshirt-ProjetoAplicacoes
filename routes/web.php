@@ -44,3 +44,16 @@ use App\Http\Controllers\CheckoutController;
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/encomenda-sucesso', [CheckoutController::class, 'success'])->name('checkout.success');
+
+
+use App\Http\Controllers\OrderManagementController;
+
+Route::get('/encomendas', [OrderManagementController::class, 'index'])->name('orders.index');
+
+Route::get('/encomendas/{id}', [OrderManagementController::class, 'show'])->name('orders.show');
+
+Route::put('/encomendas/{id}/status', [OrderManagementController::class, 'updateStatus'])->name('orders.updateStatus');
+
+use App\Http\Controllers\DashboardController;
+
+Route::get('/painel', [DashboardController::class, 'index'])->name('admin.dashboard');

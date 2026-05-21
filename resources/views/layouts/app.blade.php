@@ -19,12 +19,15 @@
         <a href="/" style="text-decoration: none; color: inherit;">Catálogo</a>
         <a href="/carrinho" style="text-decoration: none; color: inherit;">Carrinho</a>
         <a href="/personalizar" style="text-decoration: none; color: inherit;">Personalizar</a>
+        <a href="{{ route('orders.index') }}" style="color: #4a5568; text-decoration: none; font-weight: 500; padding: 8px 12px; border-radius: 4px;">
+    Gestão de Encomendas
+</a>
     </div>
     
     <div style="display: flex; gap: 15px; font-weight: bold; color: #333;">
         @auth
-            <a href="/dashboard" style="text-decoration: none; color: inherit;">Painel</a>
-            <form method="POST" action="/logout" style="margin: 0; display: inline;">
+            <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; color: inherit;">Painel</a>
+            <form method="POST" action="{{ route('logout') }}" style="margin: 0; display: inline;">
                 @csrf
                 <button type="submit" style="background: none; border: none; color: #dc3545; font-weight: bold; cursor: pointer; padding: 0; font-size: 16px;">Sair</button>
             </form>
