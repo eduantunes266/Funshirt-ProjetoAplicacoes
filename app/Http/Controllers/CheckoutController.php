@@ -8,24 +8,41 @@ use App\Models\OrderItem;
 use App\Models\Price;
 use App\Models\TshirtImage;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use App\Mail\OrderPendingMail;
 use App\Models\User;
+
 class CheckoutController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+
+        if ($user->user_type !== 'C') {
+            return redirect()->route('home');
+        }
+
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
             return redirect()->back();
         }
 
-        return view('checkout.index');
+        $customer = $user->customer;
+
+        return view('checkout.index', compact('customer'));
     }
 
     public function store(Request $request)
     {
-      $request->validate([
+        $user = Auth::user();
+
+        if ($user->user_type !== 'C') {
+            return redirect()->route('home');
+        }
+
+        $request->validate([
             'nif' => 'required|string|size:9',
             'address' => 'required|string|max:255',
             'payment_type' => 'required|in:Visa,PayPal,MB WAY',
@@ -44,6 +61,7 @@ class CheckoutController extends Controller
                     }
                 },
             ],
+            'notes' => 'nullable|string'
         ]);
 
         $cart = session()->get('cart', []);
@@ -52,10 +70,7 @@ class CheckoutController extends Controller
             return redirect()->back();
         }
 
-        $customerId = 22;
-        if (auth()->check()) {
-            $customerId = auth()->id();
-        }
+        $customerId = $user->id;
 
         $priceRule = Price::first();
         $total = 0;
@@ -97,26 +112,41 @@ class CheckoutController extends Controller
             ];
         }
 
-        
+       $paymentResponse = Http::post('https://ainet-payments-api.vercel.app/api/payments', [
+            'type' => $request->payment_type,
+            'reference' => $request->payment_ref,
+            'value' => $total,
+        ]);
+
+        if (!$paymentResponse->successful()) {
+            $mensagemErro = 'Falha na transação.';
+            $paymentData = $paymentResponse->json();
+            
+            if (is_array($paymentData)) {
+                if (array_key_exists('message', $paymentData)) {
+                    $mensagemErro = $paymentData['message'];
+                }
+            }
+            
+            return back()->withInput()->withErrors(['payment_error' => 'Pagamento rejeitado: ' . $mensagemErro]);
+        }
 
         $order = Order::create([
-            'customer_id' => $customerId, 
+            'customer_id' => $customerId,
             'status' => 'pending',
-            'date' => now()->toDateString(), 
+            'date' => now()->toDateString(),
             'total_price' => $total,
             'nif' => $request->nif,
             'address' => $request->address,
             'payment_type' => $request->payment_type,
             'payment_ref' => $request->payment_ref,
+            'notes' => $request->notes
         ]);
-
-        
-        foreach ($itemsToSave as $itemData) {
+foreach ($itemsToSave as $itemData) {
             $itemData['order_id'] = $order->id;
             OrderItem::create($itemData);
         }
 
-        $user = User::find($customerId);
         if ($user) {
             Mail::to($user->email)->send(new OrderPendingMail($order));
         }

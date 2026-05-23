@@ -5,7 +5,6 @@
 ])
 
 @php
-    // Tamanhos pre-definidos: md=160px (carrinho), sm=80px (encomenda), lg=320px (detalhe).
     $sizePx = match ($size) {
         'sm' => 80,
         'lg' => 320,
@@ -16,7 +15,10 @@
         ? asset('storage/tshirt_base/' . $colorCode . '.jpg')
         : asset('storage/tshirt_base/plain_white.png');
 
-    $designUrl = $image ? asset('storage/tshirt_images/' . $image) : null;
+    $designUrl = null;
+    if ($image) {
+        $designUrl = str_starts_with($image, 'http') ? $image : asset('storage/tshirt_images/' . $image);
+    }
 @endphp
 
 <div {{ $attributes->merge(['class' => 'tshirt-preview']) }}

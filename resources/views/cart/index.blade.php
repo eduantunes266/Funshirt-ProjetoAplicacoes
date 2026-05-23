@@ -20,7 +20,7 @@
 
                                 <x-tshirt-preview
                                     :color-code="$item['color_code'] ?? null"
-                                    :image="$item['display_image_url']"
+                                    :image="$item['image_url'] ?? $item['display_image_url'] ?? null"
                                     size="md"
                                     class="shrink-0" />
 

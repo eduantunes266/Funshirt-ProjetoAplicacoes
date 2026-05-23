@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Color;
 use App\Models\Price;
+use App\Models\TshirtImage;
 use Illuminate\Http\Request;
 
 class CustomShirtController extends Controller
@@ -32,14 +33,24 @@ class CustomShirtController extends Controller
             'image.max' => 'A imagem nao pode ter mais de 2MB.',
         ]);
 
-        $imagePath = $request->file('image')->store('tshirt_images/custom', 'public');
+        $imagePath = $request->file('image')->store('tshirt_images', 'public');
+        $filename = basename($imagePath);
+
+        $tshirtImage = TshirtImage::create([
+            'customer_id' => $request->user()->id,
+            'name' => 'T-Shirt Personalizada',
+            'description' => 'T-shirt com imagem personalizada',
+            'image_url' => $filename,
+            'custom' => 1,
+        ]);
 
         $cart = session()->get('cart', []);
-        $customId = 'custom_' . uniqid();
+        $customId = 'custom_' . $tshirtImage->id;
 
         $cart[$customId] = [
+            'tshirt_image_id' => $tshirtImage->id,
             'name' => 'T-Shirt Personalizada',
-            'image_url' => 'custom/' . basename($imagePath),
+            'image_url' => $filename,
             'description' => 'T-shirt com imagem personalizada',
             'size' => $request->size,
             'color_code' => $request->color_code,

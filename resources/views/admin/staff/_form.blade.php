@@ -42,21 +42,19 @@
         <x-input-error class="mt-2" :messages="$errors->get('gender')" />
     </div>
 
-    <div>
-        <x-input-label for="password" :value="$isEdit ? __('Nova palavra-passe') : __('Palavra-passe')" />
-        <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"
-                      @required(! $isEdit) autocomplete="new-password" />
-        @if ($isEdit)
-            <p class="mt-1 text-xs text-gray-500">Deixe em branco para manter a palavra-passe atual.</p>
-        @endif
-        <x-input-error class="mt-2" :messages="$errors->get('password')" />
-    </div>
 
-    <div>
-        <x-input-label for="password_confirmation" :value="__('Confirmar palavra-passe')" />
-        <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full"
-                      @required(! $isEdit) autocomplete="new-password" />
-    </div>
+    <div class="mt-6">
+    <x-input-label for="password" value="Nova palavra-passe" />
+    <p class="text-sm text-gray-500 mb-2">Deixe em branco para manter a palavra-passe atual.</p>
+    <x-text-input id="password" name="password" type="password" class="mt-1 block w-full" />
+    <x-input-error :messages="$errors->get('password')" class="mt-2" />
+</div>
+
+<div class="mt-4 mb-6">
+    <x-input-label for="password_confirmation" value="Confirmar palavra-passe" />
+    <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full" />
+    <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+</div>
 
     <div class="flex items-center gap-4">
         <x-primary-button>{{ $isEdit ? __('Guardar alterações') : __('Criar conta') }}</x-primary-button>

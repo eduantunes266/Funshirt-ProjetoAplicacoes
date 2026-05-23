@@ -3,7 +3,16 @@
 @section('content')
     <div style="max-width: 600px; margin: 40px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
         <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px; text-align: center;">Detalhes de Faturação e Pagamento</h1>
-
+        @if ($errors->any())
+    <div style="background-color: #fee2e2; border-left: 4px solid #ef4444; color: #991b1b; padding: 15px; margin-bottom: 25px; border-radius: 4px;">
+        <h3 style="font-weight: bold; margin-top: 0; margin-bottom: 10px; font-size: 16px;">Ocorreu um problema:</h3>
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach ($errors->all() as $error)
+                <li style="margin-bottom: 5px;">{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
         <form action="{{ route('checkout.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
             @csrf
 
@@ -44,6 +53,15 @@
                     <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
                 @enderror
             </div>
+
+            <div class="mt-6 mb-6">
+    <label for="notes" class="block font-medium text-sm text-gray-700">Notas da Encomenda (Opcional)</label>
+    <textarea id="notes" name="notes" rows="3" placeholder="Ex: Deixar a encomenda na receção, por favor."
+              class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('notes') }}</textarea>
+    @if($errors->has('notes'))
+        <p class="text-sm text-red-600 mt-2">{{ $errors->first('notes') }}</p>
+    @endif
+</div> 
 
             <div style="margin-top: 10px;">
                 <button type="submit" style="width: 100%; background-color: #28a745; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 18px;">

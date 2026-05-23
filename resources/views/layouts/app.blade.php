@@ -27,8 +27,7 @@
                             @endif
                             @if (auth()->user()->isAdmin())
                                 <a href="{{ route('admin.dashboard') }}" class="hover:text-indigo-600">Painel</a>
-                                <a href="{{ route('admin.staff.index') }}" class="hover:text-indigo-600">Utilizadores</a>
-                                <a href="{{ route('admin.tshirts.index') }}" class="hover:text-indigo-600">Gestão Catálogo</a>
+                                <a href="{{ route('admin.staff.index') }}" class="hover:text-indigo-600">Administração</a>
                             @endif
                         @endauth
                     </div>
@@ -36,7 +35,11 @@
                     <div class="flex items-center gap-4 text-sm font-semibold text-gray-700">
                         @auth
                             <a href="{{ route('profile.edit') }}" class="hover:text-indigo-600">
-                                {{ auth()->user()->isEmployee() ? 'A minha conta' : 'Perfil' }}
+                                @if (auth()->user()->isEmployee())
+                                    A minha conta
+                                @else
+                                    Perfil
+                                @endif
                             </a>
                             <form method="POST" action="{{ route('logout') }}" class="m-0">
                                 @csrf
