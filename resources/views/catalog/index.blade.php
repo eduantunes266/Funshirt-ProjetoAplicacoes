@@ -28,7 +28,7 @@ use Illuminate\Support\Str;
 
     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
         @foreach($tshirts as $tshirt)
-            <div style="border: 1px solid #ccc; padding: 15px; width: 230px; height: 450px; text-align: center; display: flex; flex-direction: column;">
+            <div style="border: 1px solid #ccc; padding: 15px; width: 230px; height: 530px; text-align: center; display: flex; flex-direction: column;">
                 <img src="{{ asset('storage/tshirt_images/' . $tshirt->image_url) }}" alt="{{ $tshirt->name }}" style="width: 100%; height: 220px; object-fit: contain;">
                 
                 <h3>{{ $tshirt->name }}</h3>
@@ -47,11 +47,38 @@ use Illuminate\Support\Str;
                 
                 <form action="{{ route('cart.add', $tshirt->id) }}" method="POST" style="margin-top: auto;">
                     @csrf
+
+                    <div style="display: flex; gap: 5px; margin-bottom: 8px;">
+                        <select name="size" required style="width: 50%; padding: 6px;">
+                            <option value="">Tam.</option>
+                            <option>S</option>
+                            <option>M</option>
+                            <option>L</option>
+                            <option>XL</option>
+                            <option>XXL</option>
+                        </select>
+
+                        <select name="color" required style="width: 50%; padding: 6px;">
+                            <option value="">Cor</option>
+                            <option>Preto</option>
+                            <option>Branco</option>
+                            <option>Azul</option>
+                            <option>Vermelho</option>
+                            <option>Verde</option>
+                        </select>
+                    </div>
+
+                    <input type="number" name="quantity" value="1" min="1"
+                        style="width: 100%; padding: 6px; margin-bottom: 8px;">
+
                     <button type="submit" style="background-color: #0056b3; color: white; font-weight: bold; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 14px;">
                         Adicionar ao Carrinho
                     </button>
                 </form>
             </div>
         @endforeach
+    </div>
+    <div style="margin-top: 25px;">
+        {{ $tshirts->links() }}
     </div>
 @endsection

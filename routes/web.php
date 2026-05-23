@@ -10,8 +10,23 @@ use App\Http\Controllers\CatalogController;
 
 Route::get('/personalizar', [CustomShirtController::class, 'create'])->name('custom.create');
 Route::post('/personalizar', [CustomShirtController::class, 'store'])->name('custom.store');
-
+Route::get('/carrinho', [CartController::class, 'index'])->name('cart.index');
+Route::post('/carrinho/adicionar/{id}', [CartController::class, 'add'])->name('cart.add');
+Route::post('/carrinho/atualizar/{key}', [CartController::class, 'update'])->name('cart.update');
+Route::post('/carrinho/remover/{key}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/carrinho/limpar', [CartController::class, 'clear'])->name('cart.clear');
 Route::get('/', [CatalogController::class, 'index'])->name('home');
+use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\Admin\PriceController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\TshirtController;
+
+Route::resource('categories', CategoryController::class);
+Route::resource('colors', ColorController::class);
+Route::resource('tshirts', TshirtController::class);
+
+Route::get('/prices', [PriceController::class, 'edit'])->name('prices.edit');
+Route::put('/prices', [PriceController::class, 'update'])->name('prices.update');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

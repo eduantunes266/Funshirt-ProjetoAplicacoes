@@ -12,19 +12,24 @@ class CatalogController extends Controller
     public function index(Request $request)
     {
         $categories = Category::all();
-        $price = Price::first(); // Vai buscar a linha única de preços
-        
+        $price = Price::first();
+
         $query = TshirtImage::whereNull('customer_id');
 
         if ($request->filled('search')) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+            $search = $request->search;
+
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', '%' . $search . '%')
+                  ->orWhere('description', 'like', '%' . $search . '%');
+            });
         }
 
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
-        $tshirts = $query->get();
+        $tshirts = $query->paginate(12)->withQueryString();
 
         return view('catalog.index', compact('tshirts', 'categories', 'price'));
     }
