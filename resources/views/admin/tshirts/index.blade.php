@@ -13,10 +13,10 @@
                 @include('admin.partials.flash')
 
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">Categorias</h3>
-                    <a href="{{ route('admin.categories.create') }}"
+                    <h3 class="text-lg font-medium text-gray-900">T-shirts do catálogo</h3>
+                    <a href="{{ route('admin.tshirts.create') }}"
                        class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
-                        + Nova categoria
+                        + Nova t-shirt
                     </a>
                 </div>
 
@@ -26,37 +26,40 @@
                             <tr class="text-left text-gray-500">
                                 <th class="px-3 py-2">Imagem</th>
                                 <th class="px-3 py-2">Nome</th>
+                                <th class="px-3 py-2">Categoria</th>
                                 <th class="px-3 py-2 text-right">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            @forelse ($categories as $category)
+                            @forelse ($tshirts as $tshirt)
                                 <tr>
                                     <td class="px-3 py-2">
-                                        @if ($category->image_url)
-                                            <img src="{{ asset('storage/categories/' . $category->image_url) }}"
-                                                 alt="{{ $category->name }}"
-                                                 class="h-12 w-12 object-contain border border-gray-200 rounded bg-gray-50">
-                                        @else
-                                            <span class="text-xs text-gray-400">—</span>
-                                        @endif
+                                        <img src="{{ asset('storage/tshirt_images/' . $tshirt->image_url) }}"
+                                             alt="{{ $tshirt->name }}"
+                                             class="h-14 w-14 object-contain border border-gray-200 rounded bg-gray-50">
                                     </td>
-                                    <td class="px-3 py-2 text-gray-900 font-medium">{{ $category->name }}</td>
+                                    <td class="px-3 py-2 text-gray-900">
+                                        <div class="font-medium">{{ $tshirt->name }}</div>
+                                        <div class="text-xs text-gray-500">{{ \Illuminate\Support\Str::limit($tshirt->description, 80) }}</div>
+                                    </td>
+                                    <td class="px-3 py-2 text-gray-700">
+                                        {{ $tshirt->category?->name ?? '—' }}
+                                    </td>
                                     <td class="px-3 py-2">
                                         <div class="flex items-center justify-end gap-3">
-                                            <a href="{{ route('admin.categories.edit', $category) }}" class="text-indigo-600 hover:underline">Editar</a>
-                                            <form method="post" action="{{ route('admin.categories.destroy', $category) }}"
-                                                  onsubmit="return confirm('Eliminar a categoria {{ $category->name }}?')">
+                                            <a href="{{ route('admin.tshirts.edit', $tshirt) }}" class="text-indigo-600 hover:underline">Editar</a>
+                                            <form method="post" action="{{ route('admin.tshirts.destroy', $tshirt) }}"
+                                                  onsubmit="return confirm('Remover a t-shirt {{ $tshirt->name }}?')">
                                                 @csrf
                                                 @method('delete')
-                                                <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                                <button type="submit" class="text-red-600 hover:underline">Remover</button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-3 py-6 text-center text-gray-500">Sem categorias a apresentar.</td>
+                                    <td colspan="4" class="px-3 py-6 text-center text-gray-500">Sem t-shirts a apresentar.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -64,7 +67,7 @@
                 </div>
 
                 <div class="mt-4">
-                    {{ $categories->links() }}
+                    {{ $tshirts->links() }}
                 </div>
             </div>
         </div>

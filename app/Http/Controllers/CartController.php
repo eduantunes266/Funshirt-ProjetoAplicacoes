@@ -2,26 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\TshirtImage;
+use App\Models\Color;
 use App\Models\Price;
+use App\Models\TshirtImage;
+use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
+    private const VALID_SIZES = ['XS', 'S', 'M', 'L', 'XL'];
+
     public function index()
     {
         $cart = session()->get('cart', []);
         $priceRule = Price::first();
+        $colors = Color::orderBy('name')->get();
+        $sizes = self::VALID_SIZES;
         $total = 0;
 
         foreach ($cart as $key => $item) {
             $quantity = $item['quantity'];
             $isCustom = $item['is_custom'] ?? false;
+            $hasDiscount = $quantity >= $priceRule->qty_discount;
 
-            if ($quantity >= $priceRule->qty_discount) {
-                $unitPrice = $isCustom ? $priceRule->unit_price_own_discount : $priceRule->unit_price_catalog_discount;
+            if ($isCustom) {
+                $unitPrice = $hasDiscount ? $priceRule->unit_price_own_discount : $priceRule->unit_price_own;
             } else {
-                $unitPrice = $isCustom ? $priceRule->unit_price_own : $priceRule->unit_price_catalog;
+                $unitPrice = $hasDiscount ? $priceRule->unit_price_catalog_discount : $priceRule->unit_price_catalog;
             }
 
             $subtotal = $unitPrice * $quantity;
@@ -30,23 +36,24 @@ class CartController extends Controller
             $cart[$key]['display_image_url'] = $isCustom ? 'placeholder_custom.png' : $item['image_url'];
             $cart[$key]['unit_price'] = $unitPrice;
             $cart[$key]['subtotal'] = $subtotal;
+            $cart[$key]['has_discount'] = $hasDiscount;
         }
 
-        return view('cart.index', compact('cart', 'total'));
+        return view('cart.index', compact('cart', 'total', 'colors', 'sizes', 'priceRule'));
     }
 
     public function add(Request $request, $id)
     {
         $request->validate([
-            'size' => 'required|string',
-            'color' => 'required|string',
-            'quantity' => 'required|integer|min:1',
+            'size' => ['required', 'in:' . implode(',', self::VALID_SIZES)],
+            'color_code' => ['required', 'string', 'exists:colors,code'],
+            'quantity' => ['required', 'integer', 'min:1'],
         ]);
 
         $tshirt = TshirtImage::findOrFail($id);
         $cart = session()->get('cart', []);
 
-        $cartKey = $id . '_' . $request->size . '_' . $request->color;
+        $cartKey = $id . '_' . $request->size . '_' . $request->color_code;
 
         if (isset($cart[$cartKey])) {
             $cart[$cartKey]['quantity'] += $request->quantity;
@@ -57,23 +64,23 @@ class CartController extends Controller
                 'image_url' => $tshirt->image_url,
                 'description' => $tshirt->description,
                 'size' => $request->size,
-                'color' => $request->color,
-                'quantity' => $request->quantity,
+                'color_code' => $request->color_code,
+                'quantity' => (int) $request->quantity,
                 'is_custom' => false,
             ];
         }
 
         session()->put('cart', $cart);
 
-        return redirect()->back()->with('success', 'Produto adicionado ao carrinho!');
+        return redirect()->back()->with('success', 'Produto adicionado ao carrinho.');
     }
 
     public function update(Request $request, $key)
     {
         $request->validate([
-            'size' => 'required|string',
-            'color' => 'required|string',
-            'quantity' => 'required|integer|min:1',
+            'size' => ['required', 'in:' . implode(',', self::VALID_SIZES)],
+            'color_code' => ['required', 'string', 'exists:colors,code'],
+            'quantity' => ['required', 'integer', 'min:0'],
         ]);
 
         $cart = session()->get('cart', []);
@@ -82,19 +89,24 @@ class CartController extends Controller
             return redirect()->back();
         }
 
-        $item = $cart[$key];
+        // Quantidade 0 remove o item (requisito do enunciado G3).
+        if ((int) $request->quantity === 0) {
+            unset($cart[$key]);
+            session()->put('cart', $cart);
+            return redirect()->back()->with('success', 'Item removido do carrinho.');
+        }
 
+        $item = $cart[$key];
         unset($cart[$key]);
 
-        $newKey = $item['tshirt_id'] . '_' . $request->size . '_' . $request->color;
+        $newKey = ($item['tshirt_id'] ?? $key) . '_' . $request->size . '_' . $request->color_code;
 
         if (isset($cart[$newKey])) {
-            $cart[$newKey]['quantity'] += $request->quantity;
+            $cart[$newKey]['quantity'] += (int) $request->quantity;
         } else {
             $item['size'] = $request->size;
-            $item['color'] = $request->color;
-            $item['quantity'] = $request->quantity;
-
+            $item['color_code'] = $request->color_code;
+            $item['quantity'] = (int) $request->quantity;
             $cart[$newKey] = $item;
         }
 

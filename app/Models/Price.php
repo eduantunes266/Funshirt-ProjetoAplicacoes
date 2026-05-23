@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Price extends Model
 {
+    public $timestamps = false;
+
     protected $fillable = [
         'unit_price_catalog',
         'unit_price_catalog_discount',

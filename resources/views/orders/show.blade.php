@@ -1,95 +1,119 @@
-@extends('layouts.app')
-
-@section('content')
-    <div style="max-width: 1000px; margin: 40px auto; background-color: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #edf2f7;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1 style="font-size: 24px; font-weight: 600; color: #1a202c; margin: 0;">Detalhes da Encomenda #{{ $order->id }}</h1>
-            <a href="{{ route('orders.index') }}" style="background-color: #718096; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">Voltar</a>
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex items-center justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Encomenda #' . $order->id) }}
+            </h2>
+            <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">← Voltar</a>
         </div>
+    </x-slot>
 
-        <div style="display: flex; gap: 20px; margin-bottom: 40px;">
-            <div style="flex: 1; padding: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-                <p style="margin-top: 0; color: #718096; font-size: 14px; margin-bottom: 15px;">Informação Geral</p>
-                <p style="margin-bottom: 12px; font-size: 15px; color: #1a202c;"><strong>Data:</strong> {{ $order->date }}</p>
-                <p style="margin-bottom: 20px; font-size: 15px; color: #1a202c;"><strong>Total:</strong> {{ number_format($order->total_price, 2, ',', ' ') }} €</p>
-                
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <p style="margin: 0; font-size: 15px; color: #1a202c;"><strong>Estado:</strong> 
-                        @if($order->status === 'pending')
-                            <span style="background-color: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-left: 5px;">Pendente</span>
-                        @elseif($order->status === 'closed')
-                            <span style="background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-left: 5px;">Fechada</span>
-                        @else
-                            <span style="background-color: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-left: 5px;">Anulada</span>
-                        @endif
-                    </p>
+    <div class="py-8">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white shadow rounded-lg p-5">
+                    <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Informação geral</h3>
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex justify-between"><dt class="text-gray-500">Data:</dt><dd class="text-gray-900">{{ $order->date }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500">Total:</dt><dd class="font-semibold text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</dd></div>
+                        <div class="flex justify-between items-center">
+                            <dt class="text-gray-500">Estado:</dt>
+                            <dd>
+                                @if($order->status === 'pending')
+                                    <span class="inline-block rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1">Pendente</span>
+                                @elseif($order->status === 'closed')
+                                    <span class="inline-block rounded-full bg-green-100 text-green-800 text-xs font-semibold px-2 py-1">Fechada</span>
+                                @else
+                                    <span class="inline-block rounded-full bg-red-100 text-red-800 text-xs font-semibold px-2 py-1">Anulada</span>
+                                @endif
+                            </dd>
+                        </div>
+                    </dl>
 
                     @if($order->status === 'pending')
-                        <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" style="margin: 0;">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="status" value="closed">
-                            <button type="submit" style="background-color: #38a169; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                                Marcar como Fechada
-                            </button>
-                        </form>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" value="closed">
+                                <button type="submit" class="rounded-md bg-green-600 text-white text-sm font-semibold px-3 py-2 hover:bg-green-500">
+                                    Marcar como fechada
+                                </button>
+                            </form>
+                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="status" value="canceled">
+                                <button type="submit" class="rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
+                                    Anular encomenda
+                                </button>
+                            </form>
+                        </div>
+                    @endif
 
-                        <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" style="margin: 0;">
-                            @csrf
-                            @method('PUT')
-                            <input type="hidden" name="status" value="canceled">
-                            <button type="submit" style="background-color: #e53e3e; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;">
-                                Anular Encomenda
-                            </button>
-                        </form>
+                    @if($order->status === 'closed' && $order->receipt_url)
+                        @can('downloadReceipt', $order)
+                            <a href="{{ route('receipts.download', $order->id) }}"
+                               class="mt-4 inline-block rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
+                                Descarregar recibo (PDF)
+                            </a>
+                        @endcan
                     @endif
                 </div>
 
-                @if($order->status === 'closed' && $order->receipt_url)
-                    @can('downloadReceipt', $order)
-                        <p style="margin: 15px 0 0 0;">
-                            <a href="{{ route('receipts.download', $order->id) }}" style="display: inline-block; background-color: #3182ce; color: white; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-weight: 600; font-size: 14px;">
-                                Descarregar recibo (PDF)
-                            </a>
-                        </p>
-                    @endcan
-                @endif
+                <div class="bg-white shadow rounded-lg p-5">
+                    <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Dados de faturação</h3>
+                    <dl class="space-y-2 text-sm">
+                        <div class="flex justify-between"><dt class="text-gray-500">NIF:</dt><dd class="text-gray-900">{{ $order->nif }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500">Morada:</dt><dd class="text-gray-900 text-right">{{ $order->address }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500">Pagamento:</dt><dd class="text-gray-900">{{ $order->payment_type }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-gray-500">Referência:</dt><dd class="text-gray-900 font-mono text-xs">{{ $order->payment_ref }}</dd></div>
+                    </dl>
+                </div>
             </div>
 
-            <div style="flex: 1; padding: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-                <p style="margin-top: 0; color: #718096; font-size: 14px; margin-bottom: 15px;">Dados de Faturação</p>
-                <p style="margin-bottom: 12px; font-size: 15px; color: #1a202c;"><strong>NIF:</strong> {{ $order->nif }}</p>
-                <p style="margin-bottom: 12px; font-size: 15px; color: #1a202c;"><strong>Morada:</strong> {{ $order->address }}</p>
-                <p style="margin-bottom: 0; font-size: 15px; color: #1a202c;"><strong>Pagamento:</strong> {{ $order->payment_type }} (Ref: {{ $order->payment_ref }})</p>
+            <div class="bg-white shadow rounded-lg p-5">
+                <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Itens da encomenda</h3>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500">
+                                <th class="px-3 py-2">T-shirt</th>
+                                <th class="px-3 py-2">Cor</th>
+                                <th class="px-3 py-2">Tamanho</th>
+                                <th class="px-3 py-2 text-right">Qtd</th>
+                                <th class="px-3 py-2 text-right">Preço un.</th>
+                                <th class="px-3 py-2 text-right">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @foreach($items as $item)
+                                <tr>
+                                    <td class="px-3 py-2">
+                                        <x-tshirt-preview
+                                            :color-code="$item->color_code"
+                                            :image="$item->tshirtImage?->image_url"
+                                            size="sm" />
+                                    </td>
+                                    <td class="px-3 py-2">
+                                        <div class="flex items-center gap-2">
+                                            <span class="inline-block h-4 w-4 rounded border border-gray-300"
+                                                  style="background-color: #{{ $item->color_code }};"></span>
+                                            <span class="font-mono text-xs text-gray-700">#{{ $item->color_code }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-3 py-2 text-gray-900">{{ $item->size }}</td>
+                                    <td class="px-3 py-2 text-right text-gray-900">{{ $item->qty }}</td>
+                                    <td class="px-3 py-2 text-right text-gray-900">{{ number_format($item->unit_price, 2, ',', ' ') }} €</td>
+                                    <td class="px-3 py-2 text-right font-semibold text-gray-900">{{ number_format($item->sub_total, 2, ',', ' ') }} €</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-
-        <h2 style="font-size: 18px; font-weight: 600; color: #2d3748; margin-bottom: 20px;">Itens da Encomenda</h2>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="border-bottom: 2px solid #e2e8f0;">
-                    <th style="padding: 12px 12px 12px 0; font-weight: 500; color: #4a5568; font-size: 14px;">ID Imagem</th>
-                    <th style="padding: 12px; font-weight: 500; color: #4a5568; font-size: 14px;">Cor</th>
-                    <th style="padding: 12px; font-weight: 500; color: #4a5568; font-size: 14px;">Tamanho</th>
-                    <th style="padding: 12px; font-weight: 500; color: #4a5568; font-size: 14px;">Quantidade</th>
-                    <th style="padding: 12px; font-weight: 500; color: #4a5568; font-size: 14px;">Preço Unit.</th>
-                    <th style="padding: 12px; font-weight: 500; color: #4a5568; font-size: 14px;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($items as $item)
-                    <tr style="border-bottom: 1px solid #edf2f7;">
-                        <td style="padding: 16px 12px 16px 0; color: #1a202c; font-size: 14px;">{{ $item->tshirt_image_id }}</td>
-                        <td style="padding: 16px 12px; color: #1a202c; font-size: 14px;">{{ $item->color_code }}</td>
-                        <td style="padding: 16px 12px; color: #1a202c; font-size: 14px;">{{ $item->size }}</td>
-                        <td style="padding: 16px 12px; color: #1a202c; font-size: 14px;">{{ $item->qty }}</td>
-                        <td style="padding: 16px 12px; color: #1a202c; font-size: 14px;">{{ number_format($item->unit_price, 2, ',', ' ') }} €</td>
-                        <td style="padding: 16px 12px; color: #1a202c; font-size: 14px;">{{ number_format($item->sub_total, 2, ',', ' ') }} €</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        
     </div>
-@endsection
+</x-app-layout>

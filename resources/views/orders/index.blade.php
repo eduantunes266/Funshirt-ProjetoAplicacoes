@@ -1,81 +1,94 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Gestão de Encomendas') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-    <div style="max-width: 1000px; margin: 40px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px;">Gestão de Encomendas</h1>
-        <div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px;">
-            <form action="{{ route('orders.index') }}" method="GET" style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
-                <div>
-                    <label for="status" style="display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #495057;">Estado</label>
-                    <select name="status" id="status" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px; width: 150px;">
-                        <option value="">Todos</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pendente</option>
-                        <option value="closed" {{ request('status') === 'closed' ? 'selected' : '' }}>Fechada</option>
-                        <option value="canceled" {{ request('status') === 'canceled' ? 'selected' : '' }}>Anulada</option>
-                    </select>
+    <div class="py-8">
+        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg p-4 sm:p-6">
+
+                @include('admin.partials.flash')
+
+                @if(auth()->user()->isAdmin())
+                    <form method="GET" action="{{ route('orders.index') }}" class="mb-5 flex flex-wrap items-end gap-3">
+                        <div>
+                            <label for="status" class="block text-xs text-gray-500 mb-1">Estado</label>
+                            <select name="status" id="status" class="rounded-md border-gray-300 text-sm">
+                                <option value="">Todos</option>
+                                <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pendente</option>
+                                <option value="closed" {{ request('status') === 'closed' ? 'selected' : '' }}>Fechada</option>
+                                <option value="canceled" {{ request('status') === 'canceled' ? 'selected' : '' }}>Anulada</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="start_date" class="block text-xs text-gray-500 mb-1">Data inicial</label>
+                            <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}"
+                                   class="rounded-md border-gray-300 text-sm">
+                        </div>
+
+                        <div>
+                            <label for="end_date" class="block text-xs text-gray-500 mb-1">Data final</label>
+                            <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}"
+                                   class="rounded-md border-gray-300 text-sm">
+                        </div>
+
+                        <x-primary-button>Filtrar</x-primary-button>
+                        <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">Limpar</a>
+                    </form>
+                @else
+                    <p class="mb-4 text-sm text-gray-600">A apresentar apenas encomendas pendentes (processamento logístico).</p>
+                @endif
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead>
+                            <tr class="text-left text-gray-500">
+                                <th class="px-3 py-2">#</th>
+                                <th class="px-3 py-2">Data</th>
+                                <th class="px-3 py-2">Cliente (ID)</th>
+                                <th class="px-3 py-2 text-right">Total</th>
+                                <th class="px-3 py-2">Estado</th>
+                                <th class="px-3 py-2 text-right">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse($orders as $order)
+                                <tr>
+                                    <td class="px-3 py-2 font-medium text-gray-900">#{{ $order->id }}</td>
+                                    <td class="px-3 py-2 text-gray-700">{{ $order->date }}</td>
+                                    <td class="px-3 py-2 text-gray-700">{{ $order->customer_id }}</td>
+                                    <td class="px-3 py-2 text-right text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</td>
+                                    <td class="px-3 py-2">
+                                        @if($order->status === 'pending')
+                                            <span class="inline-block rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1">Pendente</span>
+                                        @elseif($order->status === 'closed')
+                                            <span class="inline-block rounded-full bg-green-100 text-green-800 text-xs font-semibold px-2 py-1">Fechada</span>
+                                        @else
+                                            <span class="inline-block rounded-full bg-red-100 text-red-800 text-xs font-semibold px-2 py-1">Anulada</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-3 py-2 text-right">
+                                        <a href="{{ route('orders.show', $order) }}" class="text-indigo-600 hover:underline">Detalhes</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="px-3 py-6 text-center text-gray-500">
+                                        Sem encomendas a apresentar.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
 
-                <div>
-                    <label for="start_date" style="display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #495057;">Data Inicial</label>
-                    <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
+                <div class="mt-4">
+                    {{ $orders->links() }}
                 </div>
-
-                <div>
-                    <label for="end_date" style="display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #495057;">Data Final</label>
-                    <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" style="padding: 8px; border: 1px solid #ced4da; border-radius: 4px;">
-                </div>
-
-                <div>
-                    <button type="submit" style="background-color: #007bff; color: white; border: none; padding: 9px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                        Aplicar Filtros
-                    </button>
-                    <a href="{{ route('orders.index') }}" style="display: inline-block; background-color: #e2e8f0; color: #4a5568; text-decoration: none; padding: 9px 15px; border-radius: 4px; font-weight: bold; margin-left: 8px;">
-                        Limpar
-                    </a>
-                </div>
-            </form>
+            </div>
         </div>
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-            <thead>
-                <tr style="background-color: #f7fafc; border-bottom: 2px solid #cbd5e0;">
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">ID</th>
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">Data</th>
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">Cliente (ID)</th>
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">Total</th>
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">Estado</th>
-                    <th style="padding: 12px; font-weight: bold; color: #4a5568;">Ações</th>
-                </tr>
-            </thead>
-           <tbody>
-                @forelse($orders as $order)
-                    <tr style="border-bottom: 1px solid #e2e8f0;">
-                        <td style="padding: 12px;">#{{ $order->id }}</td>
-                        <td style="padding: 12px;">{{ $order->date }}</td>
-                        <td style="padding: 12px;">{{ $order->customer_id }}</td>
-                        <td style="padding: 12px;">{{ number_format($order->total_price, 2, ',', ' ') }} €</td>
-                        <td style="padding: 12px;">
-                            @if($order->status === 'pending')
-                                <span style="background-color: #ffeeba; color: #856404; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Pendente</span>
-                            @elseif($order->status === 'closed')
-                                <span style="background-color: #d4edda; color: #155724; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Fechada</span>
-                            @else
-                                <span style="background-color: #f8d7da; color: #721c24; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Anulada</span>
-                            @endif
-                        </td>
-   <td style="padding: 12px;">
-    <a href="{{ route('orders.show', $order->id) }}" style="display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">
-        Detalhes
-    </a>
-</td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" style="padding: 30px; text-align: center; color: #718096; font-size: 16px;">
-                            Não existem encomendas para os filtros aplicados.
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
     </div>
-@endsection
+</x-app-layout>

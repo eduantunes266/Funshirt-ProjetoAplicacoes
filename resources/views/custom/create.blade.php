@@ -1,65 +1,68 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Cria a tua T-Shirt Personalizada') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-    <div style="max-width: 600px; margin: 40px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px; text-align: center;">Cria a tua T-Shirt Personalizada</h1>
+    <div class="py-8">
+        <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg p-6">
 
-        <div style="margin: 15px 0; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; text-align: center;">
-            <p style="font-size: 18px; font-weight: bold; color: #0056b3; margin-top: 0;">
-                Preço Base: {{ number_format($price->unit_price_own, 2, ',', ' ') }} €
-            </p>
-            <p style="font-size: 13px; color: #28a745; font-weight: bold; margin-bottom: 0;">
-                Leva {{ $price->qty_discount }} ou mais por {{ number_format($price->unit_price_own_discount, 2, ',', ' ') }} € cada!
-            </p>
-        </div>
-
-        <form action="{{ route('custom.store') }}" method="POST" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 20px;">
-            @csrf
-            
-            <div>
-                <label for="image" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Upload da Imagem</label>
-                <input type="file" name="image" id="image" accept="image/*" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                @error('image')
-                    <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">
-                        {{ $message }}
+                <div class="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-md text-center">
+                    <p class="text-lg font-bold text-indigo-700 mb-1">
+                        Preço base: {{ number_format($price->unit_price_own, 2, ',', ' ') }} €
                     </p>
-                @enderror
-            </div>
+                    <p class="text-xs text-green-700 font-semibold">
+                        A partir de {{ $price->qty_discount }} un.: {{ number_format($price->unit_price_own_discount, 2, ',', ' ') }} € cada
+                    </p>
+                </div>
 
-            <div>
-                <label for="color" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Cor Base da T-Shirt</label>
-                <select name="color" id="color" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                    <option value="white">Branco</option>
-                    <option value="black">Preto</option>
-                    <option value="gray">Cinzento</option>
-                </select>
-            </div>
+                <form action="{{ route('custom.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    @csrf
 
-            <div>
-                <label for="size" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Tamanho</label>
-                <select name="size" id="size" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                    <option value="S">S</option>
-                    <option value="M">M</option>
-                    <option value="L">L</option>
-                    <option value="XL">XL</option>
-                </select>
-            </div>
+                    <div>
+                        <x-input-label for="image" value="Imagem (PNG/JPG/GIF, máx. 2MB)" />
+                        <input id="image" name="image" type="file" accept="image/*" required
+                               class="mt-1 block w-full text-sm text-gray-700">
+                        <x-input-error :messages="$errors->get('image')" class="mt-2" />
+                    </div>
 
-            <div>
-                <label for="quantity" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Quantidade</label>
-                <select name="quantity" id="quantity" style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                    @for ($i = 1; $i <= 10; $i++)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
-            </div>
+                    <div>
+                        <x-input-label for="color_code" value="Cor base da t-shirt" />
+                        <select id="color_code" name="color_code" required
+                                class="mt-1 block w-full rounded-md border-gray-300 text-sm">
+                            <option value="">— Selecione —</option>
+                            @foreach($colors as $color)
+                                <option value="{{ $color->code }}">{{ $color->name }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('color_code')" class="mt-2" />
+                    </div>
 
-            <div style="margin-top: 10px;">
-                <button type="submit" style="width: 100%; background-color: #0056b3; color: white; font-weight: bold; padding: 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">
-                    Adicionar ao Carrinho
-                </button>
+                    <div>
+                        <x-input-label for="size" value="Tamanho" />
+                        <select id="size" name="size" required
+                                class="mt-1 block w-full rounded-md border-gray-300 text-sm">
+                            @foreach($sizes as $size)
+                                <option value="{{ $size }}">{{ $size }}</option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('size')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="quantity" value="Quantidade" />
+                        <input id="quantity" name="quantity" type="number" min="1" max="10" value="1" required
+                               class="mt-1 block w-full rounded-md border-gray-300 text-sm">
+                        <x-input-error :messages="$errors->get('quantity')" class="mt-2" />
+                    </div>
+
+                    <x-primary-button class="w-full justify-center">
+                        Adicionar ao Carrinho
+                    </x-primary-button>
+                </form>
             </div>
-        </form>
-        
+        </div>
     </div>
-@endsection
+</x-app-layout>

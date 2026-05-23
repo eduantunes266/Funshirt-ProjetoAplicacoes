@@ -2,26 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\TshirtImage;
 use App\Models\Category;
+use App\Models\Color;
 use App\Models\Price;
+use App\Models\TshirtImage;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class CatalogController extends Controller
 {
-    public function index(Request $request)
-    {
-        $categories = Category::all();
-        $price = Price::first();
+    private const VALID_SIZES = ['XS', 'S', 'M', 'L', 'XL'];
 
-        $query = TshirtImage::whereNull('customer_id');
+    public function index(Request $request): View
+    {
+        $query = TshirtImage::query()->whereNull('customer_id');
 
         if ($request->filled('search')) {
             $search = $request->search;
-
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', '%' . $search . '%')
-                  ->orWhere('description', 'like', '%' . $search . '%');
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
@@ -31,6 +31,12 @@ class CatalogController extends Controller
 
         $tshirts = $query->paginate(12)->withQueryString();
 
-        return view('catalog.index', compact('tshirts', 'categories', 'price'));
+        return view('catalog.index', [
+            'tshirts' => $tshirts,
+            'categories' => Category::orderBy('name')->get(),
+            'price' => Price::first(),
+            'colors' => Color::orderBy('name')->get(),
+            'sizes' => self::VALID_SIZES,
+        ]);
     }
 }

@@ -1,7 +1,7 @@
 # FunShirt — Estado do Projeto & Handoff
 
 > Loja online de t-shirts estampadas — projeto de Aplicações para a Internet (EI, 2.º ano).
-> Documento de apoio à equipa. Última atualização: **22/05/2026**. Entrega: **13/06/2026**.
+> Documento de apoio à equipa. Última atualização: **23/05/2026**. Entrega: **13/06/2026**.
 
 ---
 
@@ -12,15 +12,15 @@
 | G | Grupo de funcionalidades | Peso | Estado |
 |---|--------------------------|------|--------|
 | G1 | Autenticação, Perfil e Gestão de Utilizadores | 20% | ✅ **100%** |
-| G2 | Catálogo | 20% | 🔴 ~30% |
-| G3 | Carrinho de compras | 20% | 🟠 ~40% |
-| G4 | Encomendas | 20% | 🟠 ~45% |
-| G5 | Imagens personalizadas | 5% | 🔴 ~30% |
+| G2 | Catálogo | 20% | ✅ **100%** |
+| G3 | Carrinho de compras | 20% | ✅ **100%** |
+| G4 | Encomendas | 20% | 🟠 ~55% |
+| G5 | Imagens personalizadas | 5% | 🟠 ~40% |
 | G6 | Recibos e email | 5% | ✅ **100%** |
-| G7 | Preview de t-shirts (opcional) | 5% | ⚪ ~5% |
+| G7 | Preview de t-shirts (opcional) | 5% | ✅ **100%** |
 | G8 | Estatísticas | 5% | ✅ **100%** |
 
-**Projeto global: ~55%.** Grupos fechados: G1, G6, G8 (30% do peso total).
+**Projeto global: ~85%.** 6 dos 8 grupos fechados (75% do peso total).
 
 ## Detalhe por grupo
 
@@ -30,46 +30,66 @@
 - Perfil do cliente/admin: nome, email, género, foto; secção de faturação (NIF, morada, pagamento) só para clientes.
 - Funcionários só alteram a password (sem acesso ao perfil).
 - Painel admin: CRUD de funcionários/admins, listar/filtrar/remover clientes, bloquear/desbloquear contas.
-- `UserPolicy`, soft delete, login bloqueado para contas `blocked`.
+- Soft delete condicional: cliente com encomendas/imagens fica em soft delete, sem histórico é apagado fisicamente.
+- `UserPolicy`, login bloqueado para contas `blocked`. Admin nunca acede ao perfil privado dos clientes (não existe rota show/edit).
+
+### ✅ G2 — Catálogo (FEITO)
+- Catálogo público com pesquisa (nome + descrição) e filtro por categoria, paginado.
+- CRUD admin de **categorias** (com upload opcional de imagem).
+- CRUD admin de **cores** (com upload obrigatório da t-shirt base — ficheiro guardado como `tshirt_base/{code}.jpg`).
+- CRUD admin de **t-shirts** (com upload obrigatório da imagem).
+- Configuração de **preços** (linha única — edit/update).
+- Todos os formulários usam Form Requests; todas as rotas admin estão sob middleware `auth+admin`.
+
+### ✅ G3 — Carrinho de Compras (FEITO)
+- Acessível a anónimos, mantido na sessão, persiste através do login.
+- Adicionar do catálogo: escolha de cor, tamanho e quantidade.
+- Adicionar t-shirt personalizada (com cor real da BD e tamanho do enum).
+- Alteração individual de cor/tamanho/quantidade por linha.
+- Quantidade = 0 remove automaticamente o item (regra do enunciado).
+- Botão "Limpar carrinho" e "Ir para pagamento".
+- Mostra preço unitário, subtotal, total global e badge "Desconto de quantidade aplicado" quando aplicável.
+- Cores e tamanhos validados contra a BD (`color_code exists:colors,code`, `size in:XS,S,M,L,XL`).
 
 ### ✅ G6 — Recibos e Email (FEITO)
-- PDF do recibo gerado ao fechar a encomenda + guardado no servidor.
+- PDF do recibo gerado ao fechar a encomenda + guardado em `storage/app/private/pdf_receipts/`.
 - Emails de encomenda pendente / fechada (com recibo anexo) / anulada, via Mailtrap.
 - Download do recibo com acesso restrito (só cliente dono + admin) — `OrderPolicy`, `ReceiptController`.
 
+### ✅ G7 — Preview de T-shirts (FEITO)
+- Componente Blade reutilizável `<x-tshirt-preview color-code=… image=… size=sm|md|lg />`.
+- Sobreposição CSS puro (sem JS, sem bibliotecas externas) — design por cima da t-shirt base da cor selecionada.
+- Integrado no carrinho e no detalhe das encomendas.
+
 ### ✅ G8 — Estatísticas (FEITO)
-- Painel `/painel` com faturação total/média/mês/ano, t-shirts vendidas, encomendas por estado, gráfico de 12 meses (CSS), top 5 imagens/categorias/clientes, últimas encomendas.
+- Painel `/admin/painel` com faturação total/média/mês/ano, t-shirts vendidas, encomendas por estado, gráfico de 12 meses (CSS), top 5 imagens/categorias/clientes, últimas encomendas.
 
-### 🔴 G2 — Catálogo (~30%) — FALTA MUITO
-- ✅ Feito: ver catálogo público, filtro por categoria.
-- ❌ Falta **toda a gestão de admin** (não existe controller): CRUD de categorias, CRUD de imagens do catálogo, gestão de cores, **configuração de preços** — tudo com upload de ficheiros.
-- ❌ Pesquisa só procura no nome (falta descrição); sem paginação.
-
-### 🟠 G3 — Carrinho (~40%)
-- ✅ Feito: carrinho na sessão, adicionar/remover, total, descontos por quantidade.
-- ❌ **Não se escolhe cor nem tamanho ao adicionar** (requisito central).
-- ❌ Não se altera cor/tamanho/quantidade de uma linha; falta "limpar carrinho".
-
-### 🟠 G4 — Encomendas (~45%)
+### 🟠 G4 — Encomendas (~55%)
 - ✅ Feito: criar encomenda no checkout, transições pending→closed/canceled, PDF, emails.
-- ❌ **Falta a integração com a plataforma de pagamentos** (secção 7 do enunciado — chamada HTTP à API externa). Parte obrigatória que não existe.
+- ✅ Feito (segurança): rotas `/encomendas/*` protegidas por `auth+staff`; funcionários só veem **pendentes** e só podem `closed`; admin vê todas e pode `closed`/`canceled`; bloqueio de re-processamento de encomenda já fechada/anulada.
+- ❌ Falta **integração com a plataforma de pagamentos** (secção 7 do enunciado — HTTP POST a `https://ainet-payments-api.vercel.app/api/payments` via Laravel HTTP Client). Parte obrigatória.
 - 🐛 **Bug:** `CheckoutController` usa `$customerId = 22` fixo para não-autenticados.
-- ❌ Checkout não é exclusivo de clientes; não redireciona anónimos para login.
-- ❌ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento com o perfil, histórico de encomendas do próprio cliente, filtro por cliente.
-- ❌ Rotas de encomendas sem middleware de auth/autorização.
+- ❌ Checkout não é exclusivo de clientes; não redireciona anónimos para login preservando o carrinho.
+- ❌ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento do form com o perfil, histórico de encomendas do próprio cliente.
+- ❌ Rotas `/checkout/*` sem middleware `auth`.
 
-### 🔴 G5 — Imagens personalizadas (~30%)
-- ✅ Feito: upload de imagem → carrinho.
-- ❌ Imagens em pasta **pública** (o enunciado exige privadas).
+### 🟠 G5 — Imagens personalizadas (~40%)
+- ✅ Feito: upload de imagem personalizada → carrinho com `color_code` real (validado contra a BD) e tamanho válido.
+- ❌ Imagens ainda guardadas em pasta **pública** (`storage/app/public/tshirt_images/custom/`). O enunciado exige `storage/app/private/tshirt_images_private/`.
 - ❌ Não existe a área de gestão das imagens do cliente (consultar/editar/apagar).
-
-### ⚪ G7 — Preview de t-shirts (~5%)
-- Opcional, não crítico. Praticamente por fazer.
+- ❌ `/personalizar` ainda é público; devia ser exclusivo de clientes.
 
 ## Requisitos transversais (contam para a nota de TODOS os grupos)
-- 🔴 **Segurança** — rotas de encomendas/carrinho/checkout/catálogo sem middleware. Ponto mais fraco.
-- 🟠 **Form Requests / Policies** — só usados em G1/G6; o resto valida "à mão".
-- 🟠 **Performance** — `->get()` sem paginação em vários sítios (catálogo ~277 t-shirts numa página).
+
+| Aspeto | Estado |
+|---|---|
+| MVC, Eloquent (nunca o facade `DB`) | ✅ |
+| Form Requests para validação | ✅ 11 classes |
+| Policies para autorização | ✅ `UserPolicy`, `OrderPolicy` |
+| Auth + Hash nativos | ✅ Cast `password=>hashed` no User Model |
+| DRY (partials, componentes Blade) | ✅ tabs partial, _form partials, x-tshirt-preview, componentes Breeze |
+| Performance (paginação, eager loading) | ✅ todos os índices |
+| Segurança | 🟢 Subiu — todas as rotas admin/staff com middleware adequado. Falta proteger `/checkout` (G4) e `/personalizar` (G5). |
 
 ## Entregáveis (não-código, secção 8 do enunciado)
 - ZIP do código (sem `vendor`, `node_modules`, `database`, `storage`, `.git`).
@@ -78,24 +98,26 @@
 - Link externo com o ZIP completo (no relatório do grupo, ativo ≥ 1 mês).
 
 ## Prioridades sugeridas
-1. **G4** — integração de pagamentos + corrigir bug `customerId=22`.
-2. **G2** — gestão de admin do catálogo (vale 20%).
-3. **G3** — escolher cor/tamanho ao adicionar ao carrinho.
-4. **Segurança** das rotas (transversal — afeta a nota de tudo).
+1. **G4** — integração de pagamentos com a API externa + corrigir bug `$customerId=22` + middleware no checkout + pré-preenchimento. Vale 20% do projeto.
+2. **G5** — mover imagens personalizadas para `storage/app/private/`, criar área do cliente para CRUD, restringir `/personalizar` a clientes autenticados.
+3. **G4 (cliente)** — página "as minhas encomendas" para o cliente ver o histórico + descarregar recibos.
+4. Polish do PDF do recibo (mostrar nome da imagem em vez do `tshirt_image_id`).
 
 ## Como correr o projeto localmente
 - Ambiente: Laragon (Windows), PHP 8.4+, Node 24.
 - Terminal 1: `php artisan serve` · Terminal 2: `npm run dev`
 - Aceder em **http://localhost:8000**.
-- Base de dados SQLite. Todos os utilizadores de teste têm password `123`
-  (admins `a1/a2/a3@mail.pt`, funcionários `f1/f2/f3@mail.pt`, clientes `c1..c10@mail.pt`).
+- Base de dados SQLite. Todos os utilizadores de teste têm password `123`.
+  Admins: `a1/a2/a3@mail.pt` (**a1 está BLOQUEADO no seed — usar a2 ou a3**).
+  Funcionários: `f1/f2/f3@mail.pt`.
+  Clientes: `c1..c10@mail.pt`.
 
 ---
 
 # PARTE 2 — PROMPT PARA DAR À IA
 
 > Copiar tudo o que está dentro do bloco abaixo e colar no início de uma sessão
-> com a IA (Gemini/Claude/etc.) antes de pedir trabalho em G2/G3/G4/G5.
+> com a IA (Gemini/Claude/etc.) antes de pedir trabalho em G4/G5.
 
 ```
 Estás a ajudar um grupo de 3 alunos num projeto de faculdade: a loja online
@@ -107,21 +129,22 @@ escrever código.
   pequenos efeitos de UI (o Breeze já traz Alpine.js — não acrescentar JS novo).
 - NÃO alterar a base de dados. A migração 2026_03_26_155238_initial.php é
   fornecida pelo docente e é fixa.
-- Trabalhar de forma simples, sem inventar demasiado.
-- Boas práticas Laravel: MVC, Eloquent (nunca o facade DB), Form Requests para
-  validação, Policies para autorização, Hash/auth nativos, rotas e métodos HTTP
-  corretos, DRY (partials, componentes Blade), performance (paginar, select()
-  só do necessário, eager loading).
+- Trabalhar de forma simples, sem inventar demasiado (é projeto académico,
+  tem de ser explicável a um professor).
+- Boas práticas Laravel: MVC, Eloquent (nunca o facade DB), Form Requests
+  para validação, Policies para autorização, Hash/auth nativos, rotas e
+  métodos HTTP corretos, DRY (partials, componentes Blade), performance
+  (paginar, select() só do necessário, eager loading).
 - Interface em Português. UI em Tailwind, reutilizando os componentes Breeze
-  (x-text-input, x-input-label, x-input-error, x-primary-button).
+  (x-text-input, x-input-label, x-input-error, x-primary-button, x-app-layout).
+- Toda a lógica vive nos controllers, nada em routes/web.php nem nas views.
 
 == STACK ==
 - Laravel 13 + SQLite + Breeze (Blade + Alpine). PHP 8.4 (Laragon), Node 24.
 - Correr: php artisan serve + npm run dev -> http://localhost:8000.
 - Pacote barryvdh/laravel-dompdf instalado (PDFs).
-- Todos os utilizadores de teste têm password "123". Emails de teste:
-  admins a1/a2/a3@mail.pt, funcionários f1/f2/f3@mail.pt,
-  clientes c1..c10@mail.pt.
+- Todos os utilizadores de teste têm password "123".
+  a1 está BLOQUEADO — usar a2/a3 para admin; f1..f3 funcionários; c1..c10 clientes.
 
 == FACTOS TÉCNICOS (todas as IAs têm de saber) ==
 - user_type: C (Cliente), F (Funcionário), A (Administrador). NÃO existe "E".
@@ -131,45 +154,48 @@ escrever código.
 - User e Customer usam o trait SoftDeletes.
 - Relações: $user->customer e $customer->user.
 - Helpers no User: isAdmin(), isEmployee(), isCustomer(), photoLink().
-- Password do User tem cast 'hashed'.
+- Password do User tem cast 'hashed' — NÃO chamar Hash::make() (é redundante).
 - O Controller base usa AuthorizesRequests ($this->authorize(...) funciona).
-- Middleware alias: 'admin' -> App\Http\Middleware\IsAdmin.
+- Middleware aliases: 'admin' -> App\Http\Middleware\IsAdmin,
+                      'staff' -> App\Http\Middleware\IsStaff (F+A).
 - Policies existentes (auto-discovered): UserPolicy, OrderPolicy.
-- A navbar está em resources/views/layouts/app.blade.php (role-aware).
+- A navbar está em resources/views/layouts/app.blade.php (role-aware, Tailwind).
   layouts/navigation.blade.php NÃO é usado.
 - Flash: a área de admin usa session('success'); o perfil usa session('status')
   com códigos. Não misturar.
 - Storage: fotos em storage/app/public/photos (campo photo_url guarda só o nome
   do ficheiro). Recibos em storage/app/private/pdf_receipts (disco 'local').
+  Imagens t-shirts em storage/app/public/tshirt_images.
+  T-shirts base por cor em storage/app/public/tshirt_base/{code}.jpg.
+  Categorias em storage/app/public/categories.
 - Email verification está ativo (User implements MustVerifyEmail); staff criado
   pelo admin é pré-verificado.
+- Componente preview: <x-tshirt-preview color-code="..." image="..." size="md" />
+  (overlay CSS puro, integrado em cart e orders/show).
 - Pagamentos simulados: API em https://ainet-payments-api.vercel.app
   (POST /api/payments), consumir com o Laravel HTTP Client.
 - Emails via mailtrap.io.
 
 == ESTADO DOS GRUPOS ==
-FEITOS (100%): G1 (auth/perfil/utilizadores), G6 (recibos/email),
-G8 (estatísticas).
+FEITOS (100%): G1 (auth/perfil/utilizadores), G2 (catálogo), G3 (carrinho),
+G6 (recibos/email), G7 (preview), G8 (estatísticas).
+
 POR FAZER:
-- G2 Catálogo: falta toda a gestão de admin (CRUD de categorias, imagens,
-  cores e preços, com upload). Pesquisa só procura no nome; falta paginação.
-- G3 Carrinho: falta escolher cor/tamanho ao adicionar; editar itens;
-  limpar carrinho.
-- G4 Encomendas: falta a integração com a plataforma de pagamentos (secção 7
-  do enunciado). BUG: CheckoutController tem $customerId=22 fixo. Checkout
-  não é exclusivo de clientes; faltam notes, reason_for_cancellation,
-  pré-preenchimento, histórico do cliente. Rotas sem middleware.
-- G5 Imagens personalizadas: imagens estão em pasta pública (deviam ser
-  privadas); falta a área de gestão das imagens do cliente.
-- G7 Preview de t-shirts: opcional, não crítico.
-TRANSVERSAL: muitas rotas (encomendas, carrinho, checkout, catálogo) não têm
-middleware de auth/autorização — corrigir, mas o carrinho tem de continuar a
-funcionar para anónimos.
+- G4 Encomendas (~55%): falta a integração com a plataforma de pagamentos
+  (secção 7 do enunciado). BUG: CheckoutController tem $customerId=22 fixo.
+  Checkout não é exclusivo de clientes; faltam notes, reason_for_cancellation,
+  pré-preenchimento, histórico do cliente. Rotas /checkout sem middleware.
+- G5 Imagens personalizadas (~40%): imagens estão em pasta pública (deviam
+  ser privadas em tshirt_images_private); falta a área de gestão das imagens
+  do cliente; /personalizar ainda é público (devia ser só cliente).
+
+TRANSVERSAL: rotas /checkout e /personalizar ainda sem middleware adequado.
+O carrinho TEM de continuar a funcionar para anónimos.
 
 == COMO TRABALHAR ==
 - Antes de mexer em código de outro grupo de funcionalidades, avisar o colega
   responsável.
 - Verificar sempre: php artisan route:list, php artisan view:cache (apanha
-  erros de Blade) e testar no browser.
+  erros de Blade) e testar no browser autenticado com a2@mail.pt (admin).
 - ZIP de entrega exclui vendor, node_modules, database, storage e .git.
 ```

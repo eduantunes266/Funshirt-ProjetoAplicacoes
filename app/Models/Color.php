@@ -3,8 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Color extends Model
 {
-    protected $fillable = ['name'];
+    use SoftDeletes;
+
+    public $timestamps = false;
+
+    protected $primaryKey = 'code';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = ['code', 'name'];
 }

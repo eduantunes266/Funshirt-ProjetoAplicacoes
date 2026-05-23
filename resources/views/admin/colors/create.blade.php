@@ -1,0 +1,49 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Nova Cor') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow sm:rounded-lg p-6">
+
+                <form method="POST" action="{{ route('admin.colors.store') }}"
+                      enctype="multipart/form-data" class="space-y-5">
+                    @csrf
+
+                    <div>
+                        <x-input-label for="code" value="Código CSS" />
+                        <x-text-input id="code" name="code" type="text" maxlength="50"
+                                      value="{{ old('code') }}" required
+                                      class="mt-1 block w-full font-mono" placeholder="ac283b" />
+                        <p class="mt-1 text-xs text-gray-500">Código CSS válido — hex (ex: <code>ac283b</code>) ou nome (ex: <code>black</code>).</p>
+                        <x-input-error :messages="$errors->get('code')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="name" value="Nome" />
+                        <x-text-input id="name" name="name" type="text"
+                                      value="{{ old('name') }}" required
+                                      class="mt-1 block w-full" placeholder="Vermelho" />
+                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="base_image" value="Imagem da t-shirt base" />
+                        <input id="base_image" name="base_image" type="file" accept="image/jpeg,image/png" required
+                               class="mt-1 block w-full text-sm text-gray-700">
+                        <p class="mt-1 text-xs text-gray-500">JPG/PNG até 4MB. Será guardada como <code>{código}.jpg</code>.</p>
+                        <x-input-error :messages="$errors->get('base_image')" class="mt-2" />
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <a href="{{ route('admin.colors.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
+                        <x-primary-button>Criar cor</x-primary-button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

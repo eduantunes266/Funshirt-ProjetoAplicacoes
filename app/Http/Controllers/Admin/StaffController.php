@@ -7,7 +7,6 @@ use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class StaffController extends Controller
@@ -42,12 +41,8 @@ class StaffController extends Controller
      */
     public function store(StoreStaffRequest $request): RedirectResponse
     {
-        $staff = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'user_type' => $request->user_type,
-            'gender' => $request->gender,
+        // O cast 'password' => 'hashed' no User Model faz o hash automatico.
+        $staff = User::create($request->safe()->only(['name', 'email', 'password', 'user_type', 'gender']) + [
             'blocked' => false,
         ]);
 
@@ -55,7 +50,7 @@ class StaffController extends Controller
         $staff->markEmailAsVerified();
 
         return redirect()->route('admin.staff.index')
-            ->with('success', 'Contacriada com sucesso.');
+            ->with('success', 'Conta criada com sucesso.');
     }
 
     /**
@@ -64,7 +59,7 @@ class StaffController extends Controller
     public function edit(User $staff): View
     {
         $this->authorize('update', $staff);
-        $this->ensureIsStaff($staff);
+        abort_unless($staff->isEmployee() || $staff->isAdmin(), 404);
 
         return view('admin.staff.edit', compact('staff'));
     }
@@ -75,19 +70,19 @@ class StaffController extends Controller
     public function update(UpdateStaffRequest $request, User $staff): RedirectResponse
     {
         $this->authorize('update', $staff);
-        $this->ensureIsStaff($staff);
+        abort_unless($staff->isEmployee() || $staff->isAdmin(), 404);
 
         $staff->fill($request->safe()->only(['name', 'email', 'user_type', 'gender']));
 
-        // Em branco mantem a palavra-passe atual.
+        // Em branco mantem a palavra-passe atual; o cast 'hashed' faz o hash automatico.
         if ($request->filled('password')) {
-            $staff->password = Hash::make($request->password);
+            $staff->password = $request->password;
         }
 
         $staff->save();
 
         return redirect()->route('admin.staff.index')
-            ->with('success', 'Contaatualizada com sucesso.');
+            ->with('success', 'Conta atualizada com sucesso.');
     }
 
     /**
@@ -96,19 +91,11 @@ class StaffController extends Controller
     public function destroy(User $staff): RedirectResponse
     {
         $this->authorize('delete', $staff);
-        $this->ensureIsStaff($staff);
+        abort_unless($staff->isEmployee() || $staff->isAdmin(), 404);
 
         $staff->delete();
 
         return redirect()->route('admin.staff.index')
-            ->with('success', 'Contaremovida com sucesso.');
-    }
-
-    /**
-     * Garante que a conta alvo e mesmo staff (funcionario ou administrador).
-     */
-    private function ensureIsStaff(User $staff): void
-    {
-        abort_unless(in_array($staff->user_type, ['F', 'A'], true), 404);
+            ->with('success', 'Conta removida com sucesso.');
     }
 }

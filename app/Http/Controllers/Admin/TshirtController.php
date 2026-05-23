@@ -3,63 +3,86 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreTshirtRequest;
+use App\Http\Requests\UpdateTshirtRequest;
+use App\Models\Category;
+use App\Models\TshirtImage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class TshirtController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): View
     {
-        //
+        $tshirts = TshirtImage::with('category')
+            ->whereNull('customer_id') // so as do catalogo (nao as personalizadas dos clientes)
+            ->orderBy('name')
+            ->paginate(15);
+
+        return view('admin.tshirts.index', compact('tshirts'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
-        //
+        $categories = Category::orderBy('name')->get();
+        return view('admin.tshirts.create', compact('categories'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreTshirtRequest $request): RedirectResponse
     {
-        //
+        $data = $request->safe()->except(['image']);
+        $data['customer_id'] = null; // catalogo da loja
+
+        $file = $request->file('image');
+        $filename = uniqid('tshirt_') . '.' . $file->getClientOriginalExtension();
+        $file->storeAs('tshirt_images', $filename, 'public');
+        $data['image_url'] = $filename;
+
+        TshirtImage::create($data);
+
+        return redirect()->route('admin.tshirts.index')
+            ->with('success', 'T-shirt adicionada ao catalogo.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(TshirtImage $tshirt): View
     {
-        //
+        abort_unless(is_null($tshirt->customer_id), 404);
+
+        $categories = Category::orderBy('name')->get();
+        return view('admin.tshirts.edit', compact('tshirt', 'categories'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(UpdateTshirtRequest $request, TshirtImage $tshirt): RedirectResponse
     {
-        //
+        abort_unless(is_null($tshirt->customer_id), 404);
+
+        $data = $request->safe()->except(['image']);
+
+        if ($request->hasFile('image')) {
+            if ($tshirt->image_url) {
+                Storage::disk('public')->delete('tshirt_images/' . $tshirt->image_url);
+            }
+
+            $file = $request->file('image');
+            $filename = uniqid('tshirt_') . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('tshirt_images', $filename, 'public');
+            $data['image_url'] = $filename;
+        }
+
+        $tshirt->update($data);
+
+        return redirect()->route('admin.tshirts.index')
+            ->with('success', 'T-shirt atualizada.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(TshirtImage $tshirt): RedirectResponse
     {
-        //
-    }
+        abort_unless(is_null($tshirt->customer_id), 404);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $tshirt->delete();
+
+        return redirect()->route('admin.tshirts.index')
+            ->with('success', 'T-shirt removida do catalogo.');
     }
 }

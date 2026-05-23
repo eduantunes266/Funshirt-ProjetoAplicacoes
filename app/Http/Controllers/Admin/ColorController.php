@@ -3,63 +3,61 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\StoreColorRequest;
+use App\Http\Requests\UpdateColorRequest;
+use App\Models\Color;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 
 class ColorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(): View
     {
-        //
+        $colors = Color::orderBy('name')->paginate(20);
+        return view('admin.colors.index', compact('colors'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(): View
     {
-        //
+        return view('admin.colors.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(StoreColorRequest $request): RedirectResponse
     {
-        //
+        Color::create($request->safe()->only(['code', 'name']));
+
+        // T-shirt base: filename = code (.jpg). Override extension to .jpg para consistencia.
+        $request->file('base_image')->storeAs('tshirt_base', $request->code . '.jpg', 'public');
+
+        return redirect()->route('admin.colors.index')
+            ->with('success', 'Cor criada com sucesso.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Color $color): View
     {
-        //
+        return view('admin.colors.edit', compact('color'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(UpdateColorRequest $request, Color $color): RedirectResponse
     {
-        //
+        $color->update($request->safe()->only(['name']));
+
+        if ($request->hasFile('base_image')) {
+            $request->file('base_image')->storeAs('tshirt_base', $color->code . '.jpg', 'public');
+        }
+
+        return redirect()->route('admin.colors.index')
+            ->with('success', 'Cor atualizada com sucesso.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Color $color): RedirectResponse
     {
-        //
-    }
+        // Soft delete da cor; mantemos o ficheiro tshirt_base em disco
+        // para encomendas historicas que ainda referenciam esta cor.
+        $color->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('admin.colors.index')
+            ->with('success', 'Cor removida com sucesso.');
     }
 }

@@ -63,52 +63,28 @@ class CheckoutController extends Controller
 
         foreach ($cart as $id => $item) {
             $quantity = $item['quantity'];
-            
-            $isCustom = false;
-            if (isset($item['is_custom'])) {
-                if ($item['is_custom']) {
-                    $isCustom = true;
-                }
-            }
+            $isCustom = $item['is_custom'] ?? false;
 
-            if ($quantity >= $priceRule->qty_discount) {
-                if ($isCustom) {
-                    $unitPrice = $priceRule->unit_price_own_discount;
-                } else {
-                    $unitPrice = $priceRule->unit_price_catalog_discount;
-                }
+            $hasDiscount = $quantity >= $priceRule->qty_discount;
+
+            if ($isCustom) {
+                $unitPrice = $hasDiscount ? $priceRule->unit_price_own_discount : $priceRule->unit_price_own;
             } else {
-                if ($isCustom) {
-                    $unitPrice = $priceRule->unit_price_own;
-                } else {
-                    $unitPrice = $priceRule->unit_price_catalog;
-                }
+                $unitPrice = $hasDiscount ? $priceRule->unit_price_catalog_discount : $priceRule->unit_price_catalog;
             }
 
             $subtotal = $unitPrice * $quantity;
             $total += $subtotal;
 
-            $tshirtImageId = null;
-            if (!str_starts_with($id, 'custom_')) {
-                $tshirtImageId = $id;
-            } else {
-                $newImage = TshirtImage::create([
+            if ($isCustom || str_starts_with((string) $id, 'custom_')) {
+                $tshirtImageId = TshirtImage::create([
                     'customer_id' => $customerId,
                     'name' => $item['name'],
                     'description' => $item['description'],
                     'image_url' => $item['image_url'],
-                ]);
-                $tshirtImageId = $newImage->id;
-            }
-
-            $colorCode = 'ac283b';
-            if (isset($item['color'])) {
-                $colorCode = $item['color'];
-            }
-
-            $size = 'M';
-            if (isset($item['size'])) {
-                $size = $item['size'];
+                ])->id;
+            } else {
+                $tshirtImageId = $item['tshirt_id'] ?? explode('_', (string) $id)[0];
             }
 
             $itemsToSave[] = [
@@ -116,8 +92,8 @@ class CheckoutController extends Controller
                 'qty' => $quantity,
                 'unit_price' => $unitPrice,
                 'sub_total' => $subtotal,
-                'color_code' => $colorCode,
-                'size' => $size,
+                'color_code' => $item['color_code'] ?? 'ac283b',
+                'size' => $item['size'] ?? 'M',
             ];
         }
 
@@ -145,7 +121,6 @@ class CheckoutController extends Controller
             Mail::to($user->email)->send(new OrderPendingMail($order));
         }
 
-        session()->forget('cart');
         session()->forget('cart');
 
         return redirect()->route('checkout.success');

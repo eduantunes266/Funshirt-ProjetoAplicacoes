@@ -1,49 +1,26 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Nova Categoria') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-<div style="max-width:600px; margin:40px auto; background:white; padding:30px; border-radius:8px;">
+    <div class="py-12">
+        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow sm:rounded-lg p-6">
 
-    <h1 style="margin-bottom:20px;">Nova Categoria</h1>
+                <form method="POST" action="{{ route('admin.categories.store') }}"
+                      enctype="multipart/form-data" class="space-y-5">
+                    @csrf
 
-    @if($errors->any())
-        <div style="background:#f8d7da; color:#721c24; padding:10px; border-radius:5px; margin-bottom:20px;">
-            <ul style="margin:0; padding-left:20px;">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+                    @include('admin.categories._form')
+
+                    <div class="flex items-center justify-end gap-3">
+                        <a href="{{ route('admin.categories.index') }}" class="text-sm text-gray-600 hover:underline">Cancelar</a>
+                        <x-primary-button>Criar</x-primary-button>
+                    </div>
+                </form>
+            </div>
         </div>
-    @endif
-
-    <form action="{{ route('admin.categories.store') }}" method="POST">
-        @csrf
-
-        <div style="margin-bottom:20px;">
-            <label style="display:block; margin-bottom:8px; font-weight:bold;">
-                Nome da Categoria
-            </label>
-
-            <input type="text"
-                   name="name"
-                   value="{{ old('name') }}"
-                   required
-                   style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
-        </div>
-
-        <div style="display:flex; gap:10px;">
-
-            <button type="submit"
-                    style="background:#28a745; color:white; border:none; padding:10px 18px; border-radius:5px; cursor:pointer;">
-                Guardar
-            </button>
-
-            <a href="{{ route('admin.categories.index') }}"
-               style="background:#6c757d; color:white; padding:10px 18px; border-radius:5px; text-decoration:none;">
-                Cancelar
-            </a>
-
-        </div>
-    </form>
-
-</div>
-@endsection
+    </div>
+</x-app-layout>

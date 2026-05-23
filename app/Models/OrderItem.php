@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
+    public $timestamps = false;
 
-public $timestamps = false;
     protected $fillable = [
         'order_id',
         'tshirt_image_id',
@@ -15,6 +16,11 @@ public $timestamps = false;
         'size',
         'qty',
         'unit_price',
-        'sub_total'
+        'sub_total',
     ];
+
+    public function tshirtImage(): BelongsTo
+    {
+        return $this->belongsTo(TshirtImage::class);
+    }
 }
