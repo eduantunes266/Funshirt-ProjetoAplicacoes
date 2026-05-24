@@ -88,15 +88,15 @@ ESTA DESATUALIZADO !!!!!
 - ✅ Feito (segurança): rotas `/encomendas/*` protegidas por `auth+staff`; funcionários só veem **pendentes** e só podem `closed`; admin vê todas e pode `closed`/`canceled`; bloqueio de re-processamento de encomenda já fechada/anulada.
 - ❌ Falta **integração com a plataforma de pagamentos** (secção 7 do enunciado — HTTP POST a `https://ainet-payments-api.vercel.app/api/payments` via Laravel HTTP Client). Parte obrigatória.
 - 🐛 **Bug:** `CheckoutController` usa `$customerId = 22` fixo para não-autenticados.
-- ❌ Checkout não é exclusivo de clientes; não redireciona anónimos para login preservando o carrinho.
-- ❌ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento do form com o perfil, histórico de encomendas do próprio cliente.
-- ❌ Rotas `/checkout/*` sem middleware `auth`.
+- ✅ Checkout não é exclusivo de clientes; não redireciona anónimos para login preservando o carrinho.
+- ✅ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento do form com o perfil, histórico de encomendas do próprio cliente.
+- ✅ Rotas `/checkout/*` sem middleware `auth`.
 
 ### 🟠 G5 — Imagens personalizadas (~40%)
 - ✅ Feito: upload de imagem personalizada → carrinho com `color_code` real (validado contra a BD) e tamanho válido.
-- ❌ Imagens ainda guardadas em pasta **pública** (`storage/app/public/tshirt_images/custom/`). O enunciado exige `storage/app/private/tshirt_images_private/`.
-- ❌ Não existe a área de gestão das imagens do cliente (consultar/editar/apagar).
-- ❌ `/personalizar` ainda é público; devia ser exclusivo de clientes.
+- ✅ Imagens ainda guardadas em pasta **pública** (`storage/app/public/tshirt_images/custom/`). O enunciado exige `storage/app/private/tshirt_images_private/`.
+- ✅ Não existe a área de gestão das imagens do cliente (consultar/editar/apagar).
+- ✅ `/personalizar` ainda é público; devia ser exclusivo de clientes.
 
 ## Requisitos transversais (contam para a nota de TODOS os grupos)
 
