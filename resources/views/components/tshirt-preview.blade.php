@@ -17,7 +17,13 @@
 
     $designUrl = null;
     if ($image) {
-        $designUrl = str_starts_with($image, 'http') ? $image : asset('storage/tshirt_images/' . $image);
+        if (str_starts_with($image, 'http')) {
+            $designUrl = $image;
+        } elseif (str_contains($image, 'tshirt_images_private')) {
+            $designUrl = route('private.image', ['path' => $image]);
+        } else {
+            $designUrl = asset('storage/tshirt_images/' . $image);
+        }
     }
 @endphp
 

@@ -20,6 +20,9 @@
                         <a href="{{ route('home') }}" class="hover:text-indigo-600">Catálogo</a>
                         <a href="{{ route('cart.index') }}" class="hover:text-indigo-600">Carrinho</a>
                         <a href="{{ route('custom.create') }}" class="hover:text-indigo-600">Personalizar</a>
+                        <a href="{{ route('customer.images.index') }}">Minhas Imagens</a>
+                            
+                            
 
                         @auth
                             @if (auth()->user()->isEmployee() || auth()->user()->isAdmin())

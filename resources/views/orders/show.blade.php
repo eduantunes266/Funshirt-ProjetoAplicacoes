@@ -45,6 +45,13 @@
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" value="canceled">
+
+                                <textarea name="reason_for_cancellation"
+                                            placeholder="Motivo da anulação"
+                                            required
+                                            class="w-full rounded-md border-gray-300 text-sm mb-2"
+                                            rows="3"></textarea>
+
                                 <button type="submit" class="rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
                                     Anular encomenda
                                 </button>
