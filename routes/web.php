@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CustomerImageController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomShirtController;
@@ -17,6 +18,8 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\TshirtController;
 use App\Http\Controllers\Admin\PriceController;
+use App\Http\Controllers\CustomerOrderController;
+use Illuminate\Support\Facades\Storage;
 
 Route::get('/', [CatalogController::class, 'index'])->name('home');
 
@@ -34,11 +37,25 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/encomenda-sucesso', [CheckoutController::class, 'success'])->name('checkout.success');
 
+    Route::get('/minhas-encomendas', [CustomerOrderController::class, 'index'])->name('customer.orders.index');
+    Route::get('/minhas-encomendas/{order}', [CustomerOrderController::class, 'show'])->name('customer.orders.show');
+
+    Route::get('/minhas-imagens', [CustomerImageController::class, 'index'])->name('customer.images.index');
+    Route::delete('/minhas-imagens/{tshirtImage}', [CustomerImageController::class, 'destroy'])->name('customer.images.destroy');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::patch('/profile/faturacao', [ProfileController::class, 'updateBilling'])->name('profile.billing.update');
 
-    Route::get('/recibos/{order}', [ReceiptController::class, 'download'])->name('receipts.download');
+    Route::get('/minhas-imagens/{tshirtImage}/editar', [CustomerImageController::class, 'edit'])->name('customer.images.edit');
+Route::put('/minhas-imagens/{tshirtImage}', [CustomerImageController::class, 'update'])->name('customer.images.update');
+
+    Route::get('/imagem-privada/{path}', function ($path) {
+        abort_unless(Storage::disk('local')->exists($path), 404);
+
+        return response()->file(Storage::disk('local')->path($path));
+    })->where('path', '.*')->name('private.image');
+    
 });
 
 Route::middleware(['auth', 'staff'])->group(function () {
@@ -74,13 +91,3 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 });
 
 require __DIR__.'/auth.php';
-
-use App\Http\Controllers\CustomController;
-
-Route::get('/personalizar', [CustomShirtController::class, 'create'])->name('custom.create');
-Route::post('/personalizar', [CustomShirtController::class, 'store'])->name('custom.store');
-
-use App\Http\Controllers\CustomerOrderController;
-
-Route::get('/minhas-encomendas', [CustomerOrderController::class, 'index'])->name('customer.orders.index');
-Route::get('/minhas-encomendas/{order}', [CustomerOrderController::class, 'show'])->name('customer.orders.show');
