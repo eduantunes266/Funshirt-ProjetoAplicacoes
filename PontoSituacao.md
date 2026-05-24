@@ -86,7 +86,7 @@ ESTA DESATUALIZADO !!!!!
 ### 🟠 G4 — Encomendas (~55%)
 - ✅ Feito: criar encomenda no checkout, transições pending→closed/canceled, PDF, emails.
 - ✅ Feito (segurança): rotas `/encomendas/*` protegidas por `auth+staff`; funcionários só veem **pendentes** e só podem `closed`; admin vê todas e pode `closed`/`canceled`; bloqueio de re-processamento de encomenda já fechada/anulada.
-- ❌ Falta **integração com a plataforma de pagamentos** (secção 7 do enunciado — HTTP POST a `https://ainet-payments-api.vercel.app/api/payments` via Laravel HTTP Client). Parte obrigatória.
+- ✅ Falta **integração com a plataforma de pagamentos** (secção 7 do enunciado — HTTP POST a `https://ainet-payments-api.vercel.app/api/payments` via Laravel HTTP Client). Parte obrigatória.
 - 🐛 **Bug:** `CheckoutController` usa `$customerId = 22` fixo para não-autenticados.
 - ✅ Checkout não é exclusivo de clientes; não redireciona anónimos para login preservando o carrinho.
 - ✅ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento do form com o perfil, histórico de encomendas do próprio cliente.
