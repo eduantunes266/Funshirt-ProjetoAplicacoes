@@ -75,6 +75,7 @@ class OrderManagementController extends Controller
 
         $request->validate([
             'status' => "required|in:{$allowed}",
+            'reason_for_cancellation' => 'nullable|required_if:status,canceled|string|max:500',
         ]);
 
         // Nao reprocessar uma encomenda ja fechada/anulada.
@@ -86,7 +87,9 @@ class OrderManagementController extends Controller
         if ($order->status === 'closed') {
             $this->generateReceiptAndNotify($order, $customer);
         } else {
+            $order->reason_for_cancellation = $request->reason_for_cancellation;
             $order->save();
+
             if ($customer) {
                 Mail::to($customer->email)->send(new OrderCanceledMail($order));
             }

@@ -13,6 +13,10 @@ class CustomShirtController extends Controller
 
     public function create()
     {
+
+    if (!request()->user()->isCustomer()) {
+    return redirect()->route('home');
+        }   
         $price = Price::first();
         $colors = Color::orderBy('name')->get();
         $sizes = self::VALID_SIZES;
@@ -22,6 +26,9 @@ class CustomShirtController extends Controller
 
     public function store(Request $request)
     {
+        if (!$request->user()->isCustomer()) {
+        return redirect()->route('home');
+        }
         $request->validate([
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'color_code' => ['required', 'string', 'exists:colors,code'],
@@ -33,14 +40,14 @@ class CustomShirtController extends Controller
             'image.max' => 'A imagem nao pode ter mais de 2MB.',
         ]);
 
-        $imagePath = $request->file('image')->store('tshirt_images', 'public');
-        $filename = basename($imagePath);
+        $imagePath = $request->file('image')->store('tshirt_images_private/custom', 'local');
+        
 
         $tshirtImage = TshirtImage::create([
-            'customer_id' => $request->user()->id,
+            'customer_id' => $request->user()->customer->id,
             'name' => 'T-Shirt Personalizada',
             'description' => 'T-shirt com imagem personalizada',
-            'image_url' => $filename,
+            'image_url' => $imagePath,
             'custom' => 1,
         ]);
 
@@ -50,7 +57,7 @@ class CustomShirtController extends Controller
         $cart[$customId] = [
             'tshirt_image_id' => $tshirtImage->id,
             'name' => 'T-Shirt Personalizada',
-            'image_url' => $filename,
+            'image_url' => $imagePath,
             'description' => 'T-shirt com imagem personalizada',
             'size' => $request->size,
             'color_code' => $request->color_code,
