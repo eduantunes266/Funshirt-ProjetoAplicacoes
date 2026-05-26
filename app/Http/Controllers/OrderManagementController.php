@@ -93,7 +93,8 @@ class OrderManagementController extends Controller
     }
 
     private function generateReceiptAndNotify(Order $order, ?User $customer): void
-    {
+    {   
+        
         $items = OrderItem::with('tshirtImage')->where('order_id', $order->id)->get();
         $clientName = $customer?->name ?? 'Cliente';
 
@@ -104,7 +105,7 @@ class OrderManagementController extends Controller
 
         $order->receipt_url = $fileName;
         $order->save();
-
+        
         if ($customer) {
             $pdfPath = Storage::disk('local')->path('pdf_receipts/' . $fileName);
             Mail::to($customer->email)->send(new OrderClosedMail($order, $pdfPath));

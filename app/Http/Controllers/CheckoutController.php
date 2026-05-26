@@ -69,7 +69,7 @@ class CheckoutController extends Controller
         $itemsToSave = [];
 
         foreach ($cart as $id => $item) {
-            $quantity = $item['quantity'];
+            $quantity = $item['quantity'] ?? $item['qty'];
             $isCustom = $item['is_custom'] ?? false;
 
             $hasDiscount = $quantity >= $priceRule->qty_discount;
@@ -84,14 +84,15 @@ class CheckoutController extends Controller
             $total += $subtotal;
 
             if ($isCustom || str_starts_with((string) $id, 'custom_')) {
-                $tshirtImageId = TshirtImage::create([
-                    'customer_id' => $user->id,
-                    'name' => $item['name'],
-                    'description' => $item['description'],
-                    'image_url' => $item['image_url'],
-                ])->id;
+                $tshirtImage = new TshirtImage();
+                $tshirtImage->customer_id = $user->id;
+                $tshirtImage->name = $item['name'] ?? 'Custom Design';
+                $tshirtImage->description = $item['description'] ?? '';
+                $tshirtImage->image_url = $item['image_url'];
+                $tshirtImage->save();
+                $tshirtImageId = $tshirtImage->id;
             } else {
-                $tshirtImageId = $item['tshirt_id'] ?? explode('_', (string) $id)[0];
+                $tshirtImageId = $item['tshirt_id'] ?? $item['tshirt_image_id'] ?? explode('_', (string) $id)[0];
             }
 
             $itemsToSave[] = [
@@ -121,21 +122,28 @@ class CheckoutController extends Controller
             return back()->withInput()->withErrors(['payment_error' => 'Pagamento rejeitado: ' . $mensagemErro]);
         }
 
-        $order = Order::create([
-            'customer_id' => $user->id,
-            'status' => 'pending',
-            'date' => now()->toDateString(),
-            'total_price' => $total,
-            'nif' => $request->nif,
-            'address' => $request->address,
-            'payment_type' => $request->payment_type,
-            'payment_ref' => $request->payment_ref,
-            'notes' => $request->notes
-        ]);
+        $order = new Order();
+        $order->customer_id = $user->id;
+        $order->status = 'pending';
+        $order->date = now()->toDateString();
+        $order->total_price = $total;
+        $order->nif = $request->nif;
+        $order->address = $request->address;
+        $order->payment_type = $request->payment_type;
+        $order->payment_ref = $request->payment_ref;
+        $order->notes = $request->notes;
+        $order->save();
 
         foreach ($itemsToSave as $itemData) {
-            $itemData['order_id'] = $order->id;
-            OrderItem::create($itemData);
+            $orderItem = new OrderItem();
+            $orderItem->order_id = $order->id;
+            $orderItem->tshirt_image_id = $itemData['tshirt_image_id'];
+            $orderItem->color_code = $itemData['color_code'];
+            $orderItem->size = $itemData['size'];
+            $orderItem->qty = $itemData['qty'];
+            $orderItem->unit_price = $itemData['unit_price'];
+            $orderItem->sub_total = $itemData['sub_total'];
+            $orderItem->save();
         }
 
         Mail::to($user->email)->send(new OrderPendingMail($order));
