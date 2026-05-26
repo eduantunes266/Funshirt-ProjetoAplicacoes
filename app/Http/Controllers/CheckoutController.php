@@ -17,30 +17,24 @@ class CheckoutController extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-
-        if ($user->user_type !== 'C') {
-            return redirect()->route('home');
-        }
-
         $cart = session()->get('cart', []);
 
         if (empty($cart)) {
             return redirect()->back();
         }
 
-        $customer = $user->customer;
+        $customer = Auth::check() && Auth::user()->isCustomer() ? Auth::user()->customer : null;
 
         return view('checkout.index', compact('customer'));
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-
-        if ($user->user_type !== 'C') {
-            return redirect()->route('home');
+        if (!Auth::check() || !Auth::user()->isCustomer()) {
+            return redirect()->route('login')->with('status', 'Tem de iniciar sessão como cliente para concluir a compra.');
         }
+
+        $user = Auth::user();
 
         $request->validate([
             'nif' => 'required|string|size:9',
@@ -70,8 +64,6 @@ class CheckoutController extends Controller
             return redirect()->back();
         }
 
-        $customerId = $user->id;
-
         $priceRule = Price::first();
         $total = 0;
         $itemsToSave = [];
@@ -93,7 +85,7 @@ class CheckoutController extends Controller
 
             if ($isCustom || str_starts_with((string) $id, 'custom_')) {
                 $tshirtImageId = TshirtImage::create([
-                    'customer_id' => $customerId,
+                    'customer_id' => $user->id,
                     'name' => $item['name'],
                     'description' => $item['description'],
                     'image_url' => $item['image_url'],
@@ -112,7 +104,7 @@ class CheckoutController extends Controller
             ];
         }
 
-       $paymentResponse = Http::post('https://ainet-payments-api.vercel.app/api/payments', [
+        $paymentResponse = Http::post('https://ainet-payments-api.vercel.app/api/payments', [
             'type' => $request->payment_type,
             'reference' => $request->payment_ref,
             'value' => $total,
@@ -122,17 +114,15 @@ class CheckoutController extends Controller
             $mensagemErro = 'Falha na transação.';
             $paymentData = $paymentResponse->json();
             
-            if (is_array($paymentData)) {
-                if (array_key_exists('message', $paymentData)) {
-                    $mensagemErro = $paymentData['message'];
-                }
+            if (is_array($paymentData) && array_key_exists('message', $paymentData)) {
+                $mensagemErro = $paymentData['message'];
             }
             
             return back()->withInput()->withErrors(['payment_error' => 'Pagamento rejeitado: ' . $mensagemErro]);
         }
 
         $order = Order::create([
-            'customer_id' => $customerId,
+            'customer_id' => $user->id,
             'status' => 'pending',
             'date' => now()->toDateString(),
             'total_price' => $total,
@@ -142,14 +132,13 @@ class CheckoutController extends Controller
             'payment_ref' => $request->payment_ref,
             'notes' => $request->notes
         ]);
-foreach ($itemsToSave as $itemData) {
+
+        foreach ($itemsToSave as $itemData) {
             $itemData['order_id'] = $order->id;
             OrderItem::create($itemData);
         }
 
-        if ($user) {
-            Mail::to($user->email)->send(new OrderPendingMail($order));
-        }
+        Mail::to($user->email)->send(new OrderPendingMail($order));
 
         session()->forget('cart');
 

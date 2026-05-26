@@ -7,6 +7,7 @@ use App\Mail\OrderClosedMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\User;
+use App\Models\Customer;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,11 +17,6 @@ use Illuminate\View\View;
 
 class OrderManagementController extends Controller
 {
-    /**
-     * Lista de encomendas.
-     * Funcionarios so veem encomendas pendentes (enunciado G4).
-     * Administradores veem todas, com filtros por estado/data.
-     */
     public function index(Request $request): View
     {
         $user = $request->user();
@@ -29,7 +25,6 @@ class OrderManagementController extends Controller
         if ($user->isEmployee()) {
             $query->where('status', 'pending');
         } else {
-            // Administrador: filtros opcionais.
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
             }
@@ -46,10 +41,6 @@ class OrderManagementController extends Controller
         return view('orders.index', compact('orders'));
     }
 
-    /**
-     * Detalhe de uma encomenda.
-     * Funcionarios so podem ver pendentes; admin pode ver todas.
-     */
     public function show(Request $request, Order $order): View
     {
         if ($request->user()->isEmployee()) {
@@ -63,33 +54,36 @@ class OrderManagementController extends Controller
         return view('orders.show', compact('order', 'items'));
     }
 
-    /**
-     * Transicao de estado.
-     * Funcionarios: so podem marcar como "closed".
-     * Administradores: podem marcar como "closed" ou "canceled".
-     */
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
         $user = $request->user();
         $allowed = $user->isAdmin() ? 'closed,canceled' : 'closed';
 
-        $request->validate([
+        $rules = [
             'status' => "required|in:{$allowed}",
-            'reason_for_cancellation' => 'nullable|required_if:status,canceled|string|max:500',
-        ]);
+        ];
 
-        // Nao reprocessar uma encomenda ja fechada/anulada.
+        if ($request->status === 'canceled') {
+            $rules['reason_for_cancellation'] = 'required|string|max:255';
+        }
+
+        $request->validate($rules);
+
         abort_unless($order->status === 'pending', 422, 'A encomenda ja foi processada.');
 
         $order->status = $request->status;
-        $customer = User::find($order->customer_id);
+
+        if ($request->status === 'canceled') {
+            $order->reason_for_cancellation = $request->reason_for_cancellation;
+        }
+
+        $customerModel = Customer::find($order->customer_id);
+        $customer = $customerModel ? $customerModel->user : null;
 
         if ($order->status === 'closed') {
             $this->generateReceiptAndNotify($order, $customer);
         } else {
-            $order->reason_for_cancellation = $request->reason_for_cancellation;
             $order->save();
-
             if ($customer) {
                 Mail::to($customer->email)->send(new OrderCanceledMail($order));
             }
@@ -98,10 +92,6 @@ class OrderManagementController extends Controller
         return redirect()->route('orders.show', $order);
     }
 
-    /**
-     * Gera o PDF do recibo (private), guarda o nome em receipt_url
-     * e envia o email com o anexo ao cliente.
-     */
     private function generateReceiptAndNotify(Order $order, ?User $customer): void
     {
         $items = OrderItem::with('tshirtImage')->where('order_id', $order->id)->get();

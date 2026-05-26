@@ -20,7 +20,8 @@
         if (str_starts_with($image, 'http')) {
             $designUrl = $image;
         } elseif (str_contains($image, 'tshirt_images_private')) {
-            $designUrl = route('private.image', ['path' => $image]);
+            $tshirtImage = \App\Models\TshirtImage::where('image_url', $image)->first();
+            $designUrl = $tshirtImage ? route('customer.images.private', $tshirtImage->id) : null;
         } else {
             $designUrl = asset('storage/tshirt_images/' . $image);
         }

@@ -18,7 +18,7 @@
 
             <div>
                 <label for="nif" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">NIF</label>
-                <input type="text" name="nif" id="nif" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
+                <input type="text" name="nif" id="nif" value="{{ old('nif', $customer?->nif) }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
                 @error('nif')
                     <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
                 @enderror
@@ -26,7 +26,7 @@
 
             <div>
                 <label for="address" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Morada de Envio</label>
-                <input type="text" name="address" id="address" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
+                <input type="text" name="address" id="address" value="{{ old('address', $customer?->address) }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
                 @error('address')
                     <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
                 @enderror
@@ -37,9 +37,9 @@
             <div>
                 <label for="payment_type" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Método de Pagamento</label>
                 <select name="payment_type" id="payment_type" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                    <option value="Visa">Visa</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="MB WAY">MB WAY</option>
+                    <option value="Visa" {{ old('payment_type', $customer?->payment_type) === 'Visa' ? 'selected' : '' }}>Visa</option>
+                    <option value="PayPal" {{ old('payment_type', $customer?->payment_type) === 'PayPal' ? 'selected' : '' }}>PayPal</option>
+                    <option value="MB WAY" {{ old('payment_type', $customer?->payment_type) === 'MB WAY' ? 'selected' : '' }}>MB WAY</option>
                 </select>
                 @error('payment_type')
                     <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
@@ -48,7 +48,7 @@
 
             <div>
                 <label id="payment_ref_label" for="payment_ref" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Número do Cartão Visa</label>
-                <input type="text" name="payment_ref" id="payment_ref" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
+                <input type="text" name="payment_ref" id="payment_ref" value="{{ old('payment_ref', $customer?->payment_ref) }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
                 @error('payment_ref')
                     <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
                 @enderror

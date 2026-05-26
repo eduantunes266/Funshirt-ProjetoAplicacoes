@@ -31,38 +31,54 @@
                         </div>
                     </dl>
 
+                    @if($order->status === 'canceled' && $order->reason_for_cancellation)
+                        <div class="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
+                            <h4 class="text-red-800 font-semibold mb-1">Motivo da Anulação</h4>
+                            <p class="text-red-700 text-sm">{{ $order->reason_for_cancellation }}</p>
+                        </div>
+                    @endif
+
                     @if($order->status === 'pending')
-                        <div class="mt-4 flex flex-wrap gap-2">
-                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
+                        <div class="mt-4 flex flex-col gap-4">
+                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="w-full">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" value="closed">
-                                <button type="submit" class="rounded-md bg-green-600 text-white text-sm font-semibold px-3 py-2 hover:bg-green-500">
+                                <button type="submit" class="w-full rounded-md bg-green-600 text-white text-sm font-semibold px-3 py-2 hover:bg-green-500">
                                     Marcar como fechada
                                 </button>
                             </form>
-                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="status" value="canceled">
+                            
+                            @if(auth()->user()->isAdmin())
+                                <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="w-full">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="status" value="canceled">
 
-                                <textarea name="reason_for_cancellation"
-                                            placeholder="Motivo da anulação"
-                                            required
-                                            class="w-full rounded-md border-gray-300 text-sm mb-2"
-                                            rows="3"></textarea>
+                                    <div class="mb-2">
+                                        <label for="reason_for_cancellation" class="block text-sm font-medium text-gray-700 mb-1">Motivo de Anulação</label>
+                                        <textarea id="reason_for_cancellation" name="reason_for_cancellation"
+                                                placeholder="Indique o motivo pelo qual esta encomenda está a ser anulada"
+                                                required
+                                                class="w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-red-500 focus:ring-red-500"
+                                                rows="3"></textarea>
+                                        @error('reason_for_cancellation')
+                                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
-                                <button type="submit" class="rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
-                                    Anular encomenda
-                                </button>
-                            </form>
+                                    <button type="submit" class="w-full rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
+                                        Anular encomenda
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     @endif
 
                     @if($order->status === 'closed' && $order->receipt_url)
                         @can('downloadReceipt', $order)
                             <a href="{{ route('receipts.download', $order->id) }}"
-                               class="mt-4 inline-block rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
+                               class="mt-4 block text-center rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
                                 Descarregar recibo (PDF)
                             </a>
                         @endcan
@@ -77,6 +93,13 @@
                         <div class="flex justify-between"><dt class="text-gray-500">Pagamento:</dt><dd class="text-gray-900">{{ $order->payment_type }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Referência:</dt><dd class="text-gray-900 font-mono text-xs">{{ $order->payment_ref }}</dd></div>
                     </dl>
+                    
+                    @if(!empty($order->notes))
+                        <div class="mt-4 p-3 bg-gray-50 rounded-md border border-gray-200">
+                            <strong class="text-gray-700 block mb-1 text-sm">Notas Adicionais:</strong>
+                            <span class="text-gray-600 italic text-sm">{{ $order->notes }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
 
