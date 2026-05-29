@@ -9,6 +9,37 @@
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white shadow rounded-lg p-4 sm:p-6">
 
+                <form method="GET" action="{{ route('my-orders.index') }}" class="mb-5 flex flex-wrap items-end gap-3">
+                    <div>
+                        <label for="status" class="block text-xs text-gray-500 mb-1">Estado</label>
+                        <select name="status" id="status" class="rounded-md border-gray-300 text-sm">
+                            <option value="">Todos</option>
+                            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pendente</option>
+                            <option value="closed" {{ request('status') === 'closed' ? 'selected' : '' }}>Fechada</option>
+                            <option value="canceled" {{ request('status') === 'canceled' ? 'selected' : '' }}>Anulada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="start_date" class="block text-xs text-gray-500 mb-1">De</label>
+                        <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}" class="rounded-md border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-xs text-gray-500 mb-1">Até</label>
+                        <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}" class="rounded-md border-gray-300 text-sm">
+                    </div>
+                    <div>
+                        <label for="sort" class="block text-xs text-gray-500 mb-1">Ordenar</label>
+                        <select name="sort" id="sort" class="rounded-md border-gray-300 text-sm">
+                            <option value="recente" {{ request('sort', 'recente') === 'recente' ? 'selected' : '' }}>Mais recente</option>
+                            <option value="antiga" {{ request('sort') === 'antiga' ? 'selected' : '' }}>Mais antiga</option>
+                            <option value="cara" {{ request('sort') === 'cara' ? 'selected' : '' }}>Valor (maior)</option>
+                            <option value="barata" {{ request('sort') === 'barata' ? 'selected' : '' }}>Valor (menor)</option>
+                        </select>
+                    </div>
+                    <x-primary-button>Filtrar</x-primary-button>
+                    <a href="{{ route('my-orders.index') }}" class="text-sm text-gray-600 hover:underline">Limpar</a>
+                </form>
+
                 <div class="overflow-x-auto">
                     <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead>

@@ -28,7 +28,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Apos login vai para o destino pretendido (ex.: checkout) ou, por omissao, o catalogo.
+        return redirect()->intended(route('home'));
     }
 
     /**

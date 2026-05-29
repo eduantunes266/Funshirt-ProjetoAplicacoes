@@ -70,10 +70,9 @@ class CheckoutController extends Controller
         }
 
         // Pagamento simulado na plataforma externa (enunciado, seccao 7).
-        if (! $this->processPayment($request->payment_type, $request->payment_ref, $total)) {
-            return back()
-                ->withInput()
-                ->with('error', 'O pagamento foi recusado pela plataforma. Verifique os dados e tente novamente.');
+        $paymentError = $this->processPayment($request->payment_type, $request->payment_ref, $total);
+        if ($paymentError !== null) {
+            return back()->withInput()->with('error', $paymentError);
         }
 
         $customerId = auth()->id();
@@ -117,9 +116,10 @@ class CheckoutController extends Controller
     }
 
     /**
-     * Envia o pedido de pagamento e devolve true apenas se o servico responder 201.
+     * Envia o pedido de pagamento. Devolve null em caso de sucesso (201) ou,
+     * caso contrario, a mensagem de erro a apresentar ao cliente.
      */
-    private function processPayment(string $type, string $reference, float $value): bool
+    private function processPayment(string $type, string $reference, float $value): ?string
     {
         try {
             $response = Http::acceptJson()
@@ -129,9 +129,17 @@ class CheckoutController extends Controller
                     'value' => round($value, 2),
                 ]);
 
-            return $response->created();
+            if ($response->created()) {
+                return null;
+            }
+
+            $apiMessage = $response->json('message');
+
+            return 'Pagamento recusado: '.($apiMessage ?: 'verifique os dados de pagamento e tente novamente.');
         } catch (\Throwable $e) {
-            return false;
+            report($e);
+
+            return 'Nao foi possivel contactar a plataforma de pagamentos. Tente novamente.';
         }
     }
 }
