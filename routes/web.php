@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
-use App\Http\Controllers\CustomShirtController;
+use App\Http\Controllers\CustomImageController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderManagementController;
 use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\DashboardController;
@@ -28,14 +29,31 @@ Route::post('/carrinho/atualizar/{key}', [CartController::class, 'update'])->nam
 Route::post('/carrinho/remover/{key}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/carrinho/limpar', [CartController::class, 'clear'])->name('cart.clear');
 
-// T-shirts personalizadas.
-Route::get('/personalizar', [CustomShirtController::class, 'create'])->name('custom.create');
-Route::post('/personalizar', [CustomShirtController::class, 'store'])->name('custom.store');
+// Checkout: exclusivo de clientes autenticados (anonimos sao reencaminhados para login).
+Route::middleware('auth')->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/encomenda-sucesso', [CheckoutController::class, 'success'])->name('checkout.success');
+});
 
-// Checkout.
-Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
-Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
-Route::get('/encomenda-sucesso', [CheckoutController::class, 'success'])->name('checkout.success');
+// Area do cliente autenticado: imagens proprias (G5) e historico de encomendas (G4).
+Route::middleware('auth')->group(function () {
+    Route::get('minhas-imagens', [CustomImageController::class, 'index'])->name('custom-images.index');
+    Route::get('minhas-imagens/criar', [CustomImageController::class, 'create'])->name('custom-images.create');
+    Route::post('minhas-imagens', [CustomImageController::class, 'store'])->name('custom-images.store');
+    Route::get('minhas-imagens/{customImage}/editar', [CustomImageController::class, 'edit'])->name('custom-images.edit');
+    Route::put('minhas-imagens/{customImage}', [CustomImageController::class, 'update'])->name('custom-images.update');
+    Route::delete('minhas-imagens/{customImage}', [CustomImageController::class, 'destroy'])->name('custom-images.destroy');
+
+    // Serve o ficheiro privado da imagem (so dono + staff, via TshirtImagePolicy).
+    // withTrashed: a imagem pode ter sido removida mas continuar a aparecer em encomendas antigas.
+    Route::get('imagens/{tshirtImage}/ficheiro', [CustomImageController::class, 'file'])
+        ->name('custom-images.file')
+        ->withTrashed();
+
+    Route::get('as-minhas-encomendas', [OrderController::class, 'index'])->name('my-orders.index');
+    Route::get('as-minhas-encomendas/{order}', [OrderController::class, 'show'])->name('my-orders.show');
+});
 
 // Gestao de encomendas: so funcionarios e administradores.
 Route::middleware(['auth', 'staff'])->group(function () {

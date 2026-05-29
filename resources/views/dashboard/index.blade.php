@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 @php
     $euro = fn ($v) => number_format((float) $v, 2, ',', ' ') . ' €';
     $maxMonthly = collect($monthlyRevenue)->max('total') ?: 0;
@@ -206,4 +204,4 @@
     </div>
 
 </div>
-@endsection
+</x-app-layout>

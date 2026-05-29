@@ -1,7 +1,7 @@
 # FunShirt — Estado do Projeto & Handoff
 
 > Loja online de t-shirts estampadas — projeto de Aplicações para a Internet (EI, 2.º ano).
-> Documento de apoio à equipa. Última atualização: **23/05/2026**. Entrega: **13/06/2026**.
+> Documento de apoio à equipa. Última atualização: **29/05/2026**. Entrega: **13/06/2026**.
 
 ---
 
@@ -14,13 +14,13 @@
 | G1 | Autenticação, Perfil e Gestão de Utilizadores | 20% | ✅ **100%** |
 | G2 | Catálogo | 20% | ✅ **100%** |
 | G3 | Carrinho de compras | 20% | ✅ **100%** |
-| G4 | Encomendas | 20% | 🟠 ~55% |
-| G5 | Imagens personalizadas | 5% | 🟠 ~40% |
+| G4 | Encomendas | 20% | ✅ **100%** |
+| G5 | Imagens personalizadas | 5% | ✅ **100%** |
 | G6 | Recibos e email | 5% | ✅ **100%** |
 | G7 | Preview de t-shirts (opcional) | 5% | ✅ **100%** |
 | G8 | Estatísticas | 5% | ✅ **100%** |
 
-**Projeto global: ~85%.** 6 dos 8 grupos fechados (75% do peso total).
+**Projeto global: 100%.** Os 8 grupos estão fechados.
 
 ## Detalhe por grupo
 
@@ -64,20 +64,19 @@
 ### ✅ G8 — Estatísticas (FEITO)
 - Painel `/admin/painel` com faturação total/média/mês/ano, t-shirts vendidas, encomendas por estado, gráfico de 12 meses (CSS), top 5 imagens/categorias/clientes, últimas encomendas.
 
-### 🟠 G4 — Encomendas (~55%)
-- ✅ Feito: criar encomenda no checkout, transições pending→closed/canceled, PDF, emails.
-- ✅ Feito (segurança): rotas `/encomendas/*` protegidas por `auth+staff`; funcionários só veem **pendentes** e só podem `closed`; admin vê todas e pode `closed`/`canceled`; bloqueio de re-processamento de encomenda já fechada/anulada.
-- ❌ Falta **integração com a plataforma de pagamentos** (secção 7 do enunciado — HTTP POST a `https://ainet-payments-api.vercel.app/api/payments` via Laravel HTTP Client). Parte obrigatória.
-- 🐛 **Bug:** `CheckoutController` usa `$customerId = 22` fixo para não-autenticados.
-- ❌ Checkout não é exclusivo de clientes; não redireciona anónimos para login preservando o carrinho.
-- ❌ Falta: campo `notes`, `reason_for_cancellation`, pré-preenchimento do form com o perfil, histórico de encomendas do próprio cliente.
-- ❌ Rotas `/checkout/*` sem middleware `auth`.
+### ✅ G4 — Encomendas (FEITO)
+- Checkout exclusivo de clientes autenticados (`auth` + `CheckoutRequest` exige `isCustomer`); anónimos são reencaminhados para login mantendo o carrinho; admin/funcionários não têm acesso.
+- **Integração com a plataforma de pagamentos** (secção 7) via Laravel HTTP Client — só regista a encomenda quando a resposta é `201`; pagamento recusado volta ao checkout com mensagem de erro e sem criar encomenda.
+- Form pré-preenchido com o perfil do cliente (NIF, morada, tipo e referência de pagamento), editável; campo `notes`; encomenda + itens numa transação de BD.
+- Transições pending→closed/canceled (com bloqueio de re-processamento); `reason_for_cancellation` registado na anulação (admin); geração de PDF + emails.
+- Histórico do cliente: "As minhas encomendas" (lista + detalhe + download do recibo nas fechadas).
+- Gestão (staff/admin): lista mostra o nome do cliente e filtra por estado, **cliente** e data.
 
-### 🟠 G5 — Imagens personalizadas (~40%)
-- ✅ Feito: upload de imagem personalizada → carrinho com `color_code` real (validado contra a BD) e tamanho válido.
-- ❌ Imagens ainda guardadas em pasta **pública** (`storage/app/public/tshirt_images/custom/`). O enunciado exige `storage/app/private/tshirt_images_private/`.
-- ❌ Não existe a área de gestão das imagens do cliente (consultar/editar/apagar).
-- ❌ `/personalizar` ainda é público; devia ser exclusivo de clientes.
+### ✅ G5 — Imagens personalizadas (FEITO)
+- Área exclusiva do cliente "As minhas imagens" — CRUD completo (consultar, adicionar, editar, remover), tudo sob `auth`.
+- Ficheiros guardados em pasta **privada** (`storage/app/private/tshirt_images_private/`), servidos por rota protegida (`TshirtImagePolicy`: só o dono + funcionários/admin). Em circunstância alguma um terceiro acede à imagem (testado: 403).
+- Adicionar ao carrinho reutiliza a lógica do catálogo; o carrinho impede adicionar imagens de outro cliente.
+- Remoção é soft delete (mantém o histórico das encomendas).
 
 ## Requisitos transversais (contam para a nota de TODOS os grupos)
 
@@ -89,7 +88,7 @@
 | Auth + Hash nativos | ✅ Cast `password=>hashed` no User Model |
 | DRY (partials, componentes Blade) | ✅ tabs partial, _form partials, x-tshirt-preview, componentes Breeze |
 | Performance (paginação, eager loading) | ✅ todos os índices |
-| Segurança | 🟢 Subiu — todas as rotas admin/staff com middleware adequado. Falta proteger `/checkout` (G4) e `/personalizar` (G5). |
+| Segurança | ✅ Todas as rotas protegidas: admin/staff com middleware; checkout, imagens próprias e encomendas do cliente sob `auth`; imagens privadas por Policy. Carrinho público (anónimo OK). |
 
 ## Entregáveis (não-código, secção 8 do enunciado)
 - ZIP do código (sem `vendor`, `node_modules`, `database`, `storage`, `.git`).
@@ -97,11 +96,13 @@
 - Relatórios individuais (Excel) — cada um submete o seu.
 - Link externo com o ZIP completo (no relatório do grupo, ativo ≥ 1 mês).
 
-## Prioridades sugeridas
-1. **G4** — integração de pagamentos com a API externa + corrigir bug `$customerId=22` + middleware no checkout + pré-preenchimento. Vale 20% do projeto.
-2. **G5** — mover imagens personalizadas para `storage/app/private/`, criar área do cliente para CRUD, restringir `/personalizar` a clientes autenticados.
-3. **G4 (cliente)** — página "as minhas encomendas" para o cliente ver o histórico + descarregar recibos.
-4. Polish do PDF do recibo (mostrar nome da imagem em vez do `tshirt_image_id`).
+## O que falta (para entrega)
+Os 8 grupos de funcionalidades estão a 100%. Resta apenas a componente **não-código**:
+1. Relatório do grupo (Excel) + relatórios individuais (Excel).
+2. ZIP do código (excluir `vendor`, `node_modules`, `database`, `storage`, `.git`) + link externo no relatório.
+3. **Importante ao clonar/entregar:** correr `composer install` (o `barryvdh/laravel-dompdf` não vinha instalado no `vendor/` e os recibos PDF falhavam sem ele) e `php artisan migrate --seed` + `storage:link`.
+
+Sugestões opcionais de polish (não obrigatórias): incluir a imagem no PDF do recibo; enviar emails via Queue (`ShouldQueue`) para resposta mais rápida.
 
 ## Como correr o projeto localmente
 - Ambiente: Laragon (Windows), PHP 8.4+, Node 24.

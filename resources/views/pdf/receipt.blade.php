@@ -29,7 +29,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>ID Imagem</th>
+                <th>Imagem</th>
                 <th>Cor</th>
                 <th>Tamanho</th>
                 <th>Qtd</th>
@@ -40,7 +40,7 @@
         <tbody>
             @foreach($items as $item)
                 <tr>
-                    <td>{{ $item->tshirt_image_id }}</td>
+                    <td>{{ $item->tshirtImage?->name ?? ('#' . $item->tshirt_image_id) }}</td>
                     <td>{{ $item->color_code }}</td>
                     <td>{{ $item->size }}</td>
                     <td>{{ $item->qty }}</td>

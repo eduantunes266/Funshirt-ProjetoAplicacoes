@@ -35,6 +35,12 @@
                                    class="rounded-md border-gray-300 text-sm">
                         </div>
 
+                        <div>
+                            <label for="customer" class="block text-xs text-gray-500 mb-1">Cliente (nome ou email)</label>
+                            <input type="text" name="customer" id="customer" value="{{ request('customer') }}"
+                                   class="rounded-md border-gray-300 text-sm">
+                        </div>
+
                         <x-primary-button>Filtrar</x-primary-button>
                         <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">Limpar</a>
                     </form>
@@ -48,7 +54,7 @@
                             <tr class="text-left text-gray-500">
                                 <th class="px-3 py-2">#</th>
                                 <th class="px-3 py-2">Data</th>
-                                <th class="px-3 py-2">Cliente (ID)</th>
+                                <th class="px-3 py-2">Cliente</th>
                                 <th class="px-3 py-2 text-right">Total</th>
                                 <th class="px-3 py-2">Estado</th>
                                 <th class="px-3 py-2 text-right">Ações</th>
@@ -59,7 +65,7 @@
                                 <tr>
                                     <td class="px-3 py-2 font-medium text-gray-900">#{{ $order->id }}</td>
                                     <td class="px-3 py-2 text-gray-700">{{ $order->date }}</td>
-                                    <td class="px-3 py-2 text-gray-700">{{ $order->customer_id }}</td>
+                                    <td class="px-3 py-2 text-gray-700">{{ $order->customer?->name ?? '#'.$order->customer_id }}</td>
                                     <td class="px-3 py-2 text-right text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</td>
                                     <td class="px-3 py-2">
                                         @if($order->status === 'pending')

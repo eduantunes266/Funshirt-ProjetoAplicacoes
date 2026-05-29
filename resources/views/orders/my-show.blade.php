@@ -4,7 +4,7 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Encomenda #' . $order->id) }}
             </h2>
-            <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">← Voltar</a>
+            <a href="{{ route('my-orders.index') }}" class="text-sm text-gray-600 hover:underline">← Voltar</a>
         </div>
     </x-slot>
 
@@ -15,7 +15,6 @@
                 <div class="bg-white shadow rounded-lg p-5">
                     <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Informação geral</h3>
                     <dl class="space-y-2 text-sm">
-                        <div class="flex justify-between"><dt class="text-gray-500">Cliente:</dt><dd class="text-gray-900 text-right">{{ $order->customer?->name ?? '#'.$order->customer_id }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Data:</dt><dd class="text-gray-900">{{ $order->date }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Total:</dt><dd class="font-semibold text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</dd></div>
                         <div class="flex justify-between items-center">
@@ -32,35 +31,9 @@
                         </div>
                     </dl>
 
-                    @if($order->status === 'pending')
-                        <div class="mt-4 space-y-3">
-                            <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
-                                @csrf
-                                @method('PUT')
-                                <input type="hidden" name="status" value="closed">
-                                <button type="submit" class="rounded-md bg-green-600 text-white text-sm font-semibold px-3 py-2 hover:bg-green-500">
-                                    Marcar como fechada
-                                </button>
-                            </form>
-
-                            @if(auth()->user()->isAdmin())
-                                <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="space-y-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="status" value="canceled">
-                                    <textarea name="reason_for_cancellation" rows="2" placeholder="Motivo da anulação (opcional)"
-                                              class="w-full rounded-md border-gray-300 text-sm"></textarea>
-                                    <button type="submit" class="rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
-                                        Anular encomenda
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    @endif
-
                     @if($order->notes)
                         <div class="mt-4">
-                            <h4 class="text-xs uppercase tracking-wide text-gray-500 mb-1">Notas do cliente</h4>
+                            <h4 class="text-xs uppercase tracking-wide text-gray-500 mb-1">Notas</h4>
                             <p class="text-sm text-gray-700">{{ $order->notes }}</p>
                         </div>
                     @endif
@@ -73,12 +46,10 @@
                     @endif
 
                     @if($order->status === 'closed' && $order->receipt_url)
-                        @can('downloadReceipt', $order)
-                            <a href="{{ route('receipts.download', $order->id) }}"
-                               class="mt-4 inline-block rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
-                                Descarregar recibo (PDF)
-                            </a>
-                        @endcan
+                        <a href="{{ route('receipts.download', $order->id) }}"
+                           class="mt-4 inline-block rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
+                            Descarregar recibo (PDF)
+                        </a>
                     @endif
                 </div>
 
@@ -109,7 +80,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
-                            @foreach($items as $item)
+                            @foreach($order->items as $item)
                                 <tr>
                                     <td class="px-3 py-2">
                                         <x-tshirt-preview
@@ -117,13 +88,7 @@
                                             :image-url="$item->tshirtImage?->fileUrl()"
                                             size="sm" />
                                     </td>
-                                    <td class="px-3 py-2">
-                                        <div class="flex items-center gap-2">
-                                            <span class="inline-block h-4 w-4 rounded border border-gray-300"
-                                                  style="background-color: #{{ $item->color_code }};"></span>
-                                            <span class="font-mono text-xs text-gray-700">#{{ $item->color_code }}</span>
-                                        </div>
-                                    </td>
+                                    <td class="px-3 py-2 text-gray-700">{{ $item->color_code }}</td>
                                     <td class="px-3 py-2 text-gray-900">{{ $item->size }}</td>
                                     <td class="px-3 py-2 text-right text-gray-900">{{ $item->qty }}</td>
                                     <td class="px-3 py-2 text-right text-gray-900">{{ number_format($item->unit_price, 2, ',', ' ') }} €</td>

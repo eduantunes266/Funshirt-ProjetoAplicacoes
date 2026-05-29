@@ -1,82 +1,72 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Finalizar Encomenda') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-    <div style="max-width: 600px; margin: 40px auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
-        <h1 style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 20px; text-align: center;">Detalhes de Faturação e Pagamento</h1>
+    <div class="py-8">
+        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white shadow rounded-lg p-6">
 
-        <form action="{{ route('checkout.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 20px;">
-            @csrf
+                @include('admin.partials.flash')
 
-            <div>
-                <label for="nif" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">NIF</label>
-                <input type="text" name="nif" id="nif" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                @error('nif')
-                    <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
-                @enderror
+                <form action="{{ route('checkout.store') }}" method="POST" class="space-y-5">
+                    @csrf
+
+                    <div>
+                        <x-input-label for="nif" value="NIF" />
+                        <x-text-input id="nif" name="nif" type="text" class="mt-1 block w-full"
+                                      :value="old('nif', $customer?->nif)" required />
+                        <x-input-error :messages="$errors->get('nif')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="address" value="Morada de Envio" />
+                        <x-text-input id="address" name="address" type="text" class="mt-1 block w-full"
+                                      :value="old('address', $customer?->address)" required />
+                        <x-input-error :messages="$errors->get('address')" class="mt-2" />
+                    </div>
+
+                    <hr class="border-gray-200">
+
+                    <div>
+                        <x-input-label for="payment_type" value="Método de Pagamento" />
+                        <select id="payment_type" name="payment_type" required
+                                class="mt-1 block w-full rounded-md border-gray-300 text-sm">
+                            @foreach (['Visa', 'PayPal', 'MB WAY'] as $type)
+                                <option value="{{ $type }}"
+                                    {{ old('payment_type', $customer?->default_payment_type) === $type ? 'selected' : '' }}>
+                                    {{ $type }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <x-input-error :messages="$errors->get('payment_type')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="payment_ref" value="Referência de Pagamento" />
+                        <x-text-input id="payment_ref" name="payment_ref" type="text" class="mt-1 block w-full"
+                                      :value="old('payment_ref', $customer?->default_payment_ref)" required />
+                        <p class="text-xs text-gray-500 mt-1">
+                            Visa: 16 dígitos começados por 4 · PayPal: email · MB WAY: 9 dígitos começados por 9.
+                        </p>
+                        <x-input-error :messages="$errors->get('payment_ref')" class="mt-2" />
+                    </div>
+
+                    <div>
+                        <x-input-label for="notes" value="Notas (opcional)" />
+                        <textarea id="notes" name="notes" rows="3"
+                                  class="mt-1 block w-full rounded-md border-gray-300 text-sm">{{ old('notes') }}</textarea>
+                        <x-input-error :messages="$errors->get('notes')" class="mt-2" />
+                    </div>
+
+                    <button type="submit"
+                            class="w-full rounded-md bg-green-600 text-white font-semibold py-3 hover:bg-green-500">
+                        Confirmar Encomenda e Pagar
+                    </button>
+                </form>
             </div>
-
-            <div>
-                <label for="address" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Morada de Envio</label>
-                <input type="text" name="address" id="address" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                @error('address')
-                    <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 10px 0;">
-
-            <div>
-                <label for="payment_type" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Método de Pagamento</label>
-                <select name="payment_type" id="payment_type" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                    <option value="Visa">Visa</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="MB WAY">MB WAY</option>
-                </select>
-                @error('payment_type')
-                    <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label id="payment_ref_label" for="payment_ref" style="display: block; font-weight: bold; margin-bottom: 8px; color: #4a5568;">Número do Cartão Visa</label>
-                <input type="text" name="payment_ref" id="payment_ref" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; background-color: #f7fafc;">
-                @error('payment_ref')
-                    <p style="color: #dc3545; font-size: 13px; font-weight: bold; margin-top: 5px; margin-bottom: 0;">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div style="margin-top: 10px;">
-                <button type="submit" style="width: 100%; background-color: #28a745; color: white; font-weight: bold; padding: 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 18px;">
-                    Confirmar Encomenda e Pagar
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const paymentType = document.getElementById('payment_type');
-            const paymentRefLabel = document.getElementById('payment_ref_label');
-            const paymentRefInput = document.getElementById('payment_ref');
-
-            function updatePaymentField() {
-                if (paymentType.value === 'MB WAY') {
-                    paymentRefLabel.innerText = 'Número de Telemóvel';
-                    paymentRefInput.placeholder = 'Ex: 912345678';
-                    paymentRefInput.type = 'number';
-                } else if (paymentType.value === 'Visa') {
-                    paymentRefLabel.innerText = 'Número do Cartão Visa';
-                    paymentRefInput.placeholder = 'Ex: 4000123456789010';
-                    paymentRefInput.type = 'number';
-                } else if (paymentType.value === 'PayPal') {
-                    paymentRefLabel.innerText = 'Email da Conta PayPal';
-                    paymentRefInput.placeholder = 'Ex: cliente@email.com';
-                    paymentRefInput.type = 'email';
-                }
-            }
-
-            paymentType.addEventListener('change', updatePaymentField);
-            updatePaymentField();
-        });
-    </script>
-@endsection
+</x-app-layout>

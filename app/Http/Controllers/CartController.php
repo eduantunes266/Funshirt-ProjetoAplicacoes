@@ -33,7 +33,9 @@ class CartController extends Controller
             $subtotal = $unitPrice * $quantity;
             $total += $subtotal;
 
-            $cart[$key]['display_image_url'] = $isCustom ? 'placeholder_custom.png' : $item['image_url'];
+            $cart[$key]['display_image_url'] = $isCustom
+                ? route('custom-images.file', $item['tshirt_id'])
+                : asset('storage/tshirt_images/'.$item['image_url']);
             $cart[$key]['unit_price'] = $unitPrice;
             $cart[$key]['subtotal'] = $subtotal;
             $cart[$key]['has_discount'] = $hasDiscount;
@@ -51,6 +53,12 @@ class CartController extends Controller
         ]);
 
         $tshirt = TshirtImage::findOrFail($id);
+
+        // Imagens proprias so podem ser adicionadas pelo seu dono (privacidade - G5).
+        if ($tshirt->customer_id !== null) {
+            abort_unless(auth()->id() === $tshirt->customer_id, 403);
+        }
+
         $cart = session()->get('cart', []);
 
         $cartKey = $id . '_' . $request->size . '_' . $request->color_code;
@@ -66,7 +74,7 @@ class CartController extends Controller
                 'size' => $request->size,
                 'color_code' => $request->color_code,
                 'quantity' => (int) $request->quantity,
-                'is_custom' => false,
+                'is_custom' => $tshirt->customer_id !== null,
             ];
         }
 

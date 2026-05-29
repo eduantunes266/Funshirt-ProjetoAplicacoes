@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // Plataforma de pagamentos simulada (enunciado, secção 7).
+    'payments' => [
+        'url' => env('PAYMENTS_API_URL', 'https://ainet-payments-api.vercel.app'),
+    ],
+
 ];

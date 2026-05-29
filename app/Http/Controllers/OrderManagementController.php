@@ -24,14 +24,21 @@ class OrderManagementController extends Controller
     public function index(Request $request): View
     {
         $user = $request->user();
-        $query = Order::query();
+        $query = Order::query()->with('customer:id,name,email');
 
         if ($user->isEmployee()) {
             $query->where('status', 'pending');
         } else {
-            // Administrador: filtros opcionais.
+            // Administrador: filtros opcionais por estado, cliente e data.
             if ($request->filled('status')) {
                 $query->where('status', $request->status);
+            }
+            if ($request->filled('customer')) {
+                $search = $request->customer;
+                $query->whereHas('customer', function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
             }
             if ($request->filled('start_date')) {
                 $query->whereDate('date', '>=', $request->start_date);
@@ -56,6 +63,8 @@ class OrderManagementController extends Controller
             abort_unless($order->status === 'pending', 403);
         }
 
+        $order->load('customer:id,name,email');
+
         $items = OrderItem::with('tshirtImage')
             ->where('order_id', $order->id)
             ->get();
@@ -73,22 +82,29 @@ class OrderManagementController extends Controller
         $user = $request->user();
         $allowed = $user->isAdmin() ? 'closed,canceled' : 'closed';
 
-        $request->validate([
+        $validated = $request->validate([
             'status' => "required|in:{$allowed}",
+            'reason_for_cancellation' => ['nullable', 'string', 'max:1000'],
         ]);
 
         // Nao reprocessar uma encomenda ja fechada/anulada.
         abort_unless($order->status === 'pending', 422, 'A encomenda ja foi processada.');
 
-        $order->status = $request->status;
+        $order->status = $validated['status'];
         $customer = User::find($order->customer_id);
 
         if ($order->status === 'closed') {
             $this->generateReceiptAndNotify($order, $customer);
         } else {
+            // Anulacao: regista o motivo opcional indicado pelo administrador.
+            $order->reason_for_cancellation = $validated['reason_for_cancellation'] ?? null;
             $order->save();
             if ($customer) {
-                Mail::to($customer->email)->send(new OrderCanceledMail($order));
+                try {
+                    Mail::to($customer->email)->send(new OrderCanceledMail($order));
+                } catch (\Throwable $e) {
+                    report($e);
+                }
             }
         }
 
@@ -114,7 +130,11 @@ class OrderManagementController extends Controller
 
         if ($customer) {
             $pdfPath = Storage::disk('local')->path('pdf_receipts/' . $fileName);
-            Mail::to($customer->email)->send(new OrderClosedMail($order, $pdfPath));
+            try {
+                Mail::to($customer->email)->send(new OrderClosedMail($order, $pdfPath));
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
     }
 }

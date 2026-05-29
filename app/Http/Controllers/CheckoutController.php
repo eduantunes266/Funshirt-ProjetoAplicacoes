@@ -2,69 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\CheckoutRequest;
+use App\Mail\OrderPendingMail;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Price;
-use App\Models\TshirtImage;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\OrderPendingMail;
-use App\Models\User;
+use Illuminate\View\View;
+
 class CheckoutController extends Controller
 {
-    public function index()
+    /**
+     * Formulario de checkout, pre-preenchido com os dados do perfil do cliente.
+     */
+    public function index(): View|RedirectResponse
     {
-        $cart = session()->get('cart', []);
-
-        if (empty($cart)) {
-            return redirect()->back();
+        if (empty(session('cart', []))) {
+            return redirect()->route('cart.index');
         }
 
-        return view('checkout.index');
+        return view('checkout.index', [
+            'customer' => auth()->user()->customer,
+        ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Finaliza a encomenda: valida, processa o pagamento na plataforma externa
+     * e, so em caso de sucesso, regista a encomenda no estado "pending".
+     */
+    public function store(CheckoutRequest $request): RedirectResponse
     {
-      $request->validate([
-            'nif' => 'required|string|size:9',
-            'address' => 'required|string|max:255',
-            'payment_type' => 'required|in:Visa,PayPal,MB WAY',
-            'payment_ref' => [
-                'required',
-                function ($attribute, $value, $fail) use ($request) {
-                    $type = $request->payment_type;
-                    if ($type === 'MB WAY' && !preg_match('/^9[0-9]{8}$/', $value)) {
-                        $fail('A referência MB WAY deve ser um número de telemóvel com 9 dígitos começado por 9.');
-                    }
-                    if ($type === 'Visa' && !preg_match('/^4[0-9]{15}$/', $value)) {
-                        $fail('O cartão Visa deve ter 16 dígitos e começar por 4.');
-                    }
-                    if ($type === 'PayPal' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
-                        $fail('A referência PayPal deve ser um endereço de email válido.');
-                    }
-                },
-            ],
-        ]);
-
-        $cart = session()->get('cart', []);
+        $cart = session('cart', []);
 
         if (empty($cart)) {
-            return redirect()->back();
-        }
-
-        $customerId = 22;
-        if (auth()->check()) {
-            $customerId = auth()->id();
+            return redirect()->route('cart.index');
         }
 
         $priceRule = Price::first();
         $total = 0;
         $itemsToSave = [];
 
-        foreach ($cart as $id => $item) {
-            $quantity = $item['quantity'];
+        foreach ($cart as $item) {
+            $quantity = (int) $item['quantity'];
             $isCustom = $item['is_custom'] ?? false;
-
             $hasDiscount = $quantity >= $priceRule->qty_discount;
 
             if ($isCustom) {
@@ -76,49 +59,51 @@ class CheckoutController extends Controller
             $subtotal = $unitPrice * $quantity;
             $total += $subtotal;
 
-            if ($isCustom || str_starts_with((string) $id, 'custom_')) {
-                $tshirtImageId = TshirtImage::create([
-                    'customer_id' => $customerId,
-                    'name' => $item['name'],
-                    'description' => $item['description'],
-                    'image_url' => $item['image_url'],
-                ])->id;
-            } else {
-                $tshirtImageId = $item['tshirt_id'] ?? explode('_', (string) $id)[0];
-            }
-
             $itemsToSave[] = [
-                'tshirt_image_id' => $tshirtImageId,
+                'tshirt_image_id' => $item['tshirt_id'],
                 'qty' => $quantity,
                 'unit_price' => $unitPrice,
                 'sub_total' => $subtotal,
-                'color_code' => $item['color_code'] ?? 'ac283b',
-                'size' => $item['size'] ?? 'M',
+                'color_code' => $item['color_code'],
+                'size' => $item['size'],
             ];
         }
 
-        
-
-        $order = Order::create([
-            'customer_id' => $customerId, 
-            'status' => 'pending',
-            'date' => now()->toDateString(), 
-            'total_price' => $total,
-            'nif' => $request->nif,
-            'address' => $request->address,
-            'payment_type' => $request->payment_type,
-            'payment_ref' => $request->payment_ref,
-        ]);
-
-        
-        foreach ($itemsToSave as $itemData) {
-            $itemData['order_id'] = $order->id;
-            OrderItem::create($itemData);
+        // Pagamento simulado na plataforma externa (enunciado, seccao 7).
+        if (! $this->processPayment($request->payment_type, $request->payment_ref, $total)) {
+            return back()
+                ->withInput()
+                ->with('error', 'O pagamento foi recusado pela plataforma. Verifique os dados e tente novamente.');
         }
 
-        $user = User::find($customerId);
-        if ($user) {
-            Mail::to($user->email)->send(new OrderPendingMail($order));
+        $customerId = auth()->id();
+
+        $order = DB::transaction(function () use ($request, $customerId, $total, $itemsToSave) {
+            $order = Order::create([
+                'customer_id' => $customerId,
+                'status' => 'pending',
+                'date' => now()->toDateString(),
+                'total_price' => $total,
+                'nif' => $request->nif,
+                'address' => $request->address,
+                'payment_type' => $request->payment_type,
+                'payment_ref' => $request->payment_ref,
+                'notes' => $request->notes,
+            ]);
+
+            foreach ($itemsToSave as $itemData) {
+                $itemData['order_id'] = $order->id;
+                OrderItem::create($itemData);
+            }
+
+            return $order;
+        });
+
+        // O email nao deve fazer falhar a encomenda (servico externo - mailtrap).
+        try {
+            Mail::to(auth()->user()->email)->send(new OrderPendingMail($order));
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         session()->forget('cart');
@@ -126,8 +111,27 @@ class CheckoutController extends Controller
         return redirect()->route('checkout.success');
     }
 
-    public function success()
+    public function success(): View
     {
         return view('checkout.success');
+    }
+
+    /**
+     * Envia o pedido de pagamento e devolve true apenas se o servico responder 201.
+     */
+    private function processPayment(string $type, string $reference, float $value): bool
+    {
+        try {
+            $response = Http::acceptJson()
+                ->post(rtrim(config('services.payments.url'), '/').'/api/payments', [
+                    'type' => $type,
+                    'reference' => $reference,
+                    'value' => round($value, 2),
+                ]);
+
+            return $response->created();
+        } catch (\Throwable $e) {
+            return false;
+        }
     }
 }

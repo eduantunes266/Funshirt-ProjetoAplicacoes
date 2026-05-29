@@ -19,9 +19,12 @@
                     <div class="flex flex-wrap items-center gap-5 text-sm font-semibold text-gray-700">
                         <a href="{{ route('home') }}" class="hover:text-indigo-600">Catálogo</a>
                         <a href="{{ route('cart.index') }}" class="hover:text-indigo-600">Carrinho</a>
-                        <a href="{{ route('custom.create') }}" class="hover:text-indigo-600">Personalizar</a>
 
                         @auth
+                            @if (auth()->user()->isCustomer())
+                                <a href="{{ route('custom-images.index') }}" class="hover:text-indigo-600">As minhas imagens</a>
+                                <a href="{{ route('my-orders.index') }}" class="hover:text-indigo-600">As minhas encomendas</a>
+                            @endif
                             @if (auth()->user()->isEmployee() || auth()->user()->isAdmin())
                                 <a href="{{ route('orders.index') }}" class="hover:text-indigo-600">Encomendas</a>
                             @endif

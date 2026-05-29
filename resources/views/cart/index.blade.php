@@ -20,7 +20,7 @@
 
                                 <x-tshirt-preview
                                     :color-code="$item['color_code'] ?? null"
-                                    :image="$item['display_image_url']"
+                                    :image-url="$item['display_image_url']"
                                     size="md"
                                     class="shrink-0" />
 
@@ -44,43 +44,37 @@
                                     </div>
                                 </div>
 
-                                @if(($item['is_custom'] ?? false))
-                                    <div class="text-sm text-gray-700">
-                                        Qtd: <strong>{{ $item['quantity'] }}</strong>
+                                <form action="{{ route('cart.update', $key) }}" method="POST" class="flex flex-wrap items-end gap-2">
+                                    @csrf
+
+                                    <div>
+                                        <label class="block text-xs text-gray-500">Tamanho</label>
+                                        <select name="size" required class="rounded-md border-gray-300 text-sm">
+                                            @foreach($sizes as $sz)
+                                                <option value="{{ $sz }}" {{ ($item['size'] ?? '') === $sz ? 'selected' : '' }}>{{ $sz }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                @else
-                                    <form action="{{ route('cart.update', $key) }}" method="POST" class="flex flex-wrap items-end gap-2">
-                                        @csrf
 
-                                        <div>
-                                            <label class="block text-xs text-gray-500">Tamanho</label>
-                                            <select name="size" required class="rounded-md border-gray-300 text-sm">
-                                                @foreach($sizes as $sz)
-                                                    <option value="{{ $sz }}" {{ ($item['size'] ?? '') === $sz ? 'selected' : '' }}>{{ $sz }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500">Cor</label>
+                                        <select name="color_code" required class="rounded-md border-gray-300 text-sm">
+                                            @foreach($colors as $color)
+                                                <option value="{{ $color->code }}" {{ ($item['color_code'] ?? '') === $color->code ? 'selected' : '' }}>{{ $color->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
-                                        <div>
-                                            <label class="block text-xs text-gray-500">Cor</label>
-                                            <select name="color_code" required class="rounded-md border-gray-300 text-sm">
-                                                @foreach($colors as $color)
-                                                    <option value="{{ $color->code }}" {{ ($item['color_code'] ?? '') === $color->code ? 'selected' : '' }}>{{ $color->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                    <div>
+                                        <label class="block text-xs text-gray-500">Qtd <span class="text-gray-400">(0 = remover)</span></label>
+                                        <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="0"
+                                               class="w-20 rounded-md border-gray-300 text-sm">
+                                    </div>
 
-                                        <div>
-                                            <label class="block text-xs text-gray-500">Qtd <span class="text-gray-400">(0 = remover)</span></label>
-                                            <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="0"
-                                                   class="w-20 rounded-md border-gray-300 text-sm">
-                                        </div>
-
-                                        <button type="submit" class="rounded-md bg-indigo-600 text-white text-sm font-semibold px-3 py-2 hover:bg-indigo-500">
-                                            Atualizar
-                                        </button>
-                                    </form>
-                                @endif
+                                    <button type="submit" class="rounded-md bg-indigo-600 text-white text-sm font-semibold px-3 py-2 hover:bg-indigo-500">
+                                        Atualizar
+                                    </button>
+                                </form>
 
                                 <div class="text-right min-w-[100px]">
                                     <div class="text-xs text-gray-500">Subtotal</div>

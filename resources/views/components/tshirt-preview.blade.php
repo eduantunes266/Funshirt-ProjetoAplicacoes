@@ -1,6 +1,7 @@
 @props([
     'colorCode' => null,
     'image' => null,
+    'imageUrl' => null,
     'size' => 'md',
 ])
 
@@ -16,7 +17,8 @@
         ? asset('storage/tshirt_base/' . $colorCode . '.jpg')
         : asset('storage/tshirt_base/plain_white.png');
 
-    $designUrl = $image ? asset('storage/tshirt_images/' . $image) : null;
+    // imageUrl (URL completo) tem prioridade; caso contrario assume ficheiro publico do catalogo.
+    $designUrl = $imageUrl ?: ($image ? asset('storage/tshirt_images/' . $image) : null);
 @endphp
 
 <div {{ $attributes->merge(['class' => 'tshirt-preview']) }}
