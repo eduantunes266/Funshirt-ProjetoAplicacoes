@@ -22,6 +22,12 @@
 
 **Projeto global: 100%.** Os 8 grupos estão fechados.
 
+## Consolidação no GitHub (29/05/2026)
+Existiram **duas implementações em paralelo** de G4/G5 (a deste ramo e a que tinha sido empurrada para a `main`). Após comparação ficheiro-a-ficheiro, manteve-se a versão **mais correta e testada** (esta) como base, e:
+- Removeram-se os duplicados/código morto da outra versão: `CustomShirtController`, `CustomerImageController`, `CustomerOrderController`, views `customer/*` e `delete-user-form`.
+- Incorporaram-se os bons extras da outra versão: mensagem de erro do pagamento (da API), filtros/ordenação no histórico do cliente, motivo de anulação no email, e login a redirecionar para o catálogo.
+- O merge **preservou o histórico** de commits de todos (não foi force-push).
+
 ## Detalhe por grupo
 
 ### ✅ G1 — Autenticação, Perfil e Gestão de Utilizadores (FEITO)
@@ -83,8 +89,8 @@
 | Aspeto | Estado |
 |---|---|
 | MVC, Eloquent (nunca o facade `DB`) | ✅ |
-| Form Requests para validação | ✅ 11 classes |
-| Policies para autorização | ✅ `UserPolicy`, `OrderPolicy` |
+| Form Requests para validação | ✅ Auth, Billing, Profile, Catálogo, Staff, **Checkout**, **Imagens próprias** |
+| Policies para autorização | ✅ `UserPolicy`, `OrderPolicy`, `TshirtImagePolicy` |
 | Auth + Hash nativos | ✅ Cast `password=>hashed` no User Model |
 | DRY (partials, componentes Blade) | ✅ tabs partial, _form partials, x-tshirt-preview, componentes Breeze |
 | Performance (paginação, eager loading) | ✅ todos os índices |
@@ -97,10 +103,15 @@
 - Link externo com o ZIP completo (no relatório do grupo, ativo ≥ 1 mês).
 
 ## O que falta (para entrega)
-Os 8 grupos de funcionalidades estão a 100%. Resta apenas a componente **não-código**:
+Os 8 grupos de funcionalidades estão a 100% e já no GitHub. Resta apenas a componente **não-código**:
 1. Relatório do grupo (Excel) + relatórios individuais (Excel).
 2. ZIP do código (excluir `vendor`, `node_modules`, `database`, `storage`, `.git`) + link externo no relatório.
-3. **Importante ao clonar/entregar:** correr `composer install` (o `barryvdh/laravel-dompdf` não vinha instalado no `vendor/` e os recibos PDF falhavam sem ele) e `php artisan migrate --seed` + `storage:link`.
+
+**Setup de uma cópia limpa (clone/ZIP) — obrigatório para correr:**
+- `composer install` — ESSENCIAL: o `barryvdh/laravel-dompdf` não estava instalado no `vendor/` e os recibos PDF falhavam sem ele.
+- `npm install && npm run build` (ou `npm run dev`).
+- `php artisan migrate --seed` + `php artisan storage:link`.
+- **Email/Mailtrap:** o `.env` (com o token do mailtrap) NÃO vai no repositório. O `.env.example` já tem a estrutura do mailtrap em `MAIL_MAILER=log`; para enviar a sério, mudar para `smtp` e colar o `MAIL_USERNAME`/`MAIL_PASSWORD` da inbox do mailtrap (Integrations > Laravel).
 
 Sugestões opcionais de polish (não obrigatórias): incluir a imagem no PDF do recibo; enviar emails via Queue (`ShouldQueue`) para resposta mais rápida.
 
@@ -118,7 +129,8 @@ Sugestões opcionais de polish (não obrigatórias): incluir a imagem no PDF do 
 # PARTE 2 — PROMPT PARA DAR À IA
 
 > Copiar tudo o que está dentro do bloco abaixo e colar no início de uma sessão
-> com a IA (Gemini/Claude/etc.) antes de pedir trabalho em G4/G5.
+> com a IA (Gemini/Claude/etc.) antes de pedir qualquer trabalho no projeto.
+> (Nota: o projeto já está a 100%; isto serve para contexto/manutenção.)
 
 ```
 Estás a ajudar um grupo de 3 alunos num projeto de faculdade: a loja online
@@ -159,7 +171,7 @@ escrever código.
 - O Controller base usa AuthorizesRequests ($this->authorize(...) funciona).
 - Middleware aliases: 'admin' -> App\Http\Middleware\IsAdmin,
                       'staff' -> App\Http\Middleware\IsStaff (F+A).
-- Policies existentes (auto-discovered): UserPolicy, OrderPolicy.
+- Policies existentes (auto-discovered): UserPolicy, OrderPolicy, TshirtImagePolicy.
 - A navbar está em resources/views/layouts/app.blade.php (role-aware, Tailwind).
   layouts/navigation.blade.php NÃO é usado.
 - Flash: a área de admin usa session('success'); o perfil usa session('status')
@@ -172,26 +184,32 @@ escrever código.
 - Email verification está ativo (User implements MustVerifyEmail); staff criado
   pelo admin é pré-verificado.
 - Componente preview: <x-tshirt-preview color-code="..." image="..." size="md" />
-  (overlay CSS puro, integrado em cart e orders/show).
+  (overlay CSS puro, integrado em cart e orders/show). Prop opcional image-url
+  para passar um URL completo (usado nas imagens privadas via TshirtImage->fileUrl()).
 - Pagamentos simulados: API em https://ainet-payments-api.vercel.app
-  (POST /api/payments), consumir com o Laravel HTTP Client.
-- Emails via mailtrap.io.
+  (POST /api/payments), consumida no CheckoutController via Laravel HTTP Client
+  (config services.payments.url). Só cria a encomenda se a resposta for 201.
+- Emails via mailtrap.io (config no .env: MAIL_MAILER=smtp + credenciais da inbox;
+  o .env NÃO vai no repositório). Os 3 emails de encomenda têm try/catch para não
+  fazer falhar o checkout/fecho se o serviço falhar.
+- Área do cliente: /minhas-imagens (CustomImageController), /as-minhas-encomendas
+  (OrderController). Imagem privada servida em /imagens/{tshirtImage}/ficheiro.
 
 == ESTADO DOS GRUPOS ==
-FEITOS (100%): G1 (auth/perfil/utilizadores), G2 (catálogo), G3 (carrinho),
-G6 (recibos/email), G7 (preview), G8 (estatísticas).
+TODOS OS 8 GRUPOS A 100% (G1-G8). O projeto está completo.
+- G4 Encomendas: checkout só para clientes autenticados (CheckoutRequest);
+  integração com a plataforma de pagamentos via Laravel HTTP Client (só cria
+  a encomenda com resposta 201, senão mostra a mensagem de erro da API);
+  form pré-preenchido com o perfil; campo notes; encomenda+itens em transação;
+  reason_for_cancellation (opcional) na anulação; histórico do cliente em
+  /as-minhas-encomendas (OrderController, com filtros e ordenação); PDF + emails.
+- G5 Imagens personalizadas: área /minhas-imagens (CustomImageController, CRUD
+  completo); ficheiros privados em storage/app/private/tshirt_images_private,
+  servidos por rota protegida (TshirtImagePolicy: dono + funcionários/admin);
+  add-to-cart reutiliza a lógica do catálogo. NÃO existe /personalizar.
 
-POR FAZER:
-- G4 Encomendas (~55%): falta a integração com a plataforma de pagamentos
-  (secção 7 do enunciado). BUG: CheckoutController tem $customerId=22 fixo.
-  Checkout não é exclusivo de clientes; faltam notes, reason_for_cancellation,
-  pré-preenchimento, histórico do cliente. Rotas /checkout sem middleware.
-- G5 Imagens personalizadas (~40%): imagens estão em pasta pública (deviam
-  ser privadas em tshirt_images_private); falta a área de gestão das imagens
-  do cliente; /personalizar ainda é público (devia ser só cliente).
-
-TRANSVERSAL: rotas /checkout e /personalizar ainda sem middleware adequado.
-O carrinho TEM de continuar a funcionar para anónimos.
+TRANSVERSAL: checkout, imagens próprias e encomendas do cliente estão sob 'auth'.
+O carrinho continua público (anónimos OK).
 
 == COMO TRABALHAR ==
 - Antes de mexer em código de outro grupo de funcionalidades, avisar o colega
