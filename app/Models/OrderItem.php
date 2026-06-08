@@ -21,6 +21,6 @@ class OrderItem extends Model
 
     public function tshirtImage(): BelongsTo
     {
-        return $this->belongsTo(TshirtImage::class);
+        return $this->belongsTo(TshirtImage::class)->withTrashed();
     }
 }

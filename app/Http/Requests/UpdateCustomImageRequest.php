@@ -6,17 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateCustomImageRequest extends FormRequest
 {
-    /**
-     * So clientes gerem imagens proprias (a posse e validada pela policy no controller).
-     */
+
     public function authorize(): bool
     {
         return $this->user()?->isCustomer() ?? false;
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
         return [
@@ -26,9 +21,6 @@ class UpdateCustomImageRequest extends FormRequest
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

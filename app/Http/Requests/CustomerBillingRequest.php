@@ -6,19 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CustomerBillingRequest extends FormRequest
 {
-    /**
-     * So os clientes (tipo C) tem dados de faturacao.
-     */
+
     public function authorize(): bool
     {
         return $this->user()->user_type === 'C';
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
         $rules = [
@@ -28,7 +21,6 @@ class CustomerBillingRequest extends FormRequest
             'default_payment_ref' => ['nullable', 'required_with:default_payment_type', 'string', 'max:255'],
         ];
 
-        // A referencia de pagamento e validada conforme o tipo escolhido.
         switch ($this->input('default_payment_type')) {
             case 'Visa':
                 $rules['default_payment_ref'][] = 'regex:/^4\d{15}$/';
@@ -44,9 +36,6 @@ class CustomerBillingRequest extends FormRequest
         return $rules;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

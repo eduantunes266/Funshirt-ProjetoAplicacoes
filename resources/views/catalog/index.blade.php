@@ -23,7 +23,7 @@
 
                 <div>
                     <label class="block text-xs text-gray-500 mb-1">Categoria</label>
-                    <select name="category" onchange="this.form.submit()" class="rounded-md border-gray-300 text-sm">
+                    <select name="category" class="rounded-md border-gray-300 text-sm">
                         <option value="">Todas</option>
                         @foreach($categories as $category)
                             <option value="{{ $category->id }}" {{ request('category') == $category->id ? 'selected' : '' }}>

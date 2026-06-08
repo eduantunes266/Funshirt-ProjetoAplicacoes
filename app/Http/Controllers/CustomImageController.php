@@ -19,9 +19,6 @@ class CustomImageController extends Controller
 
     private const DIR = 'tshirt_images_private';
 
-    /**
-     * Biblioteca de imagens proprias do cliente autenticado.
-     */
     public function index(): View
     {
         $images = TshirtImage::where('customer_id', auth()->id())
@@ -88,16 +85,12 @@ class CustomImageController extends Controller
     {
         $this->authorize('delete', $customImage);
 
-        // Soft delete: mantem o historico das encomendas que usaram esta imagem.
         $customImage->delete();
 
         return redirect()->route('custom-images.index')
             ->with('success', 'Imagem removida.');
     }
 
-    /**
-     * Serve o ficheiro privado da imagem (so dono + funcionarios/admin).
-     */
     public function file(TshirtImage $tshirtImage): StreamedResponse
     {
         $this->authorize('view', $tshirtImage);

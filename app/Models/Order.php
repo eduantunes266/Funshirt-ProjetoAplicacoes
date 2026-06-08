@@ -22,9 +22,6 @@ class Order extends Model
         'receipt_url',
     ];
 
-    /**
-     * Dados do cliente (customer_id e a mesma PK do user).
-     */
     public function customer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'customer_id');

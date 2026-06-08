@@ -75,7 +75,7 @@ class UsersSeeder extends Seeder
         $this->copiarPhotos(UsersSeeder::$allUsers['F']);
         $totalCustomers = UsersSeeder::$allUsers['C']->count();
         $first10Customers = UsersSeeder::$allUsers['C']->take(10);
-        $LastCustomers = UsersSeeder::$allUsers['C']->take(-1* ($totalCustomers - 10)); // todos menos os primeiros 10
+        $LastCustomers = UsersSeeder::$allUsers['C']->take(-1* ($totalCustomers - 10));
         $this->copiarPhotos($first10Customers->shuffle());
         $this->copiarPhotos($LastCustomers->shuffle());
 
@@ -128,7 +128,6 @@ class UsersSeeder extends Seeder
             $this->command->info("Guardados $totalGuardados/$totalParaGuardar customers na base de dados");
         }
 
-        // Atualizar o softdelete dos customers para refletir o softdelete dos users
         $this->command->info("Atualizar os softdeletes dos customers para ifcarem iguais aos clientes");
         DB::update("
             UPDATE customers
@@ -139,7 +138,6 @@ class UsersSeeder extends Seeder
             )
             ");
 
-        // Mudar alguns email para simplificar testes
         $this->command->info("Mudar alguns email para simplificar testes");
         $ids = DB::table('users')->where('user_type', 'A')->take(3)->pluck('id')->toArray();
         $i = 1;
@@ -212,7 +210,6 @@ class UsersSeeder extends Seeder
             'custom' => null
         ];
     }
-
 
     private function newFakerCustomer($faker, $customerUser)
     {

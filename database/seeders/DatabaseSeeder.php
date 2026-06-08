@@ -16,11 +16,6 @@ class DatabaseSeeder extends Seeder
     public static $startDateMonthsAgo = 24;
     public static $dbInsertBlockSize = 500;
 
-    // public static $seedType = "small";
-    // public static $seedType = "full";
-    // public static $seedLanguage = "pt_PT";
-    // public static $seedLanguage = "en_US";
-
     public static $seedLanguage = "pt_PT";
 
     public function run(): void
@@ -36,8 +31,7 @@ class DatabaseSeeder extends Seeder
             DB::statement('PRAGMA foreign_keys = OFF');
         } else {
             DB::statement('SET foreign_key_checks=0');
-            // No permissions to change global setting. Change the session setting only
-            // DB::statement("SET @@global.time_zone = '+00:00'");
+
             DB::statement("SET time_zone = '+00:00'");
         }
 

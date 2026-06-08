@@ -28,7 +28,6 @@ class RegisteredUserController extends Controller
             'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        // O cast 'password' => 'hashed' no User Model faz o hash automatico.
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -38,7 +37,6 @@ class RegisteredUserController extends Controller
             'blocked' => false,
         ]);
 
-        // Cria o registo correspondente em customers (subclasse de users).
         Customer::create(['id' => $user->id]);
 
         event(new Registered($user));

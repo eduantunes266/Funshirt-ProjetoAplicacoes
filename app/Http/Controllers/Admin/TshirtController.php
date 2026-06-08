@@ -16,7 +16,7 @@ class TshirtController extends Controller
     public function index(): View
     {
         $tshirts = TshirtImage::with('category')
-            ->whereNull('customer_id') // so as do catalogo (nao as personalizadas dos clientes)
+            ->whereNull('customer_id')
             ->orderBy('name')
             ->paginate(15);
 
@@ -32,7 +32,7 @@ class TshirtController extends Controller
     public function store(StoreTshirtRequest $request): RedirectResponse
     {
         $data = $request->safe()->except(['image']);
-        $data['customer_id'] = null; // catalogo da loja
+        $data['customer_id'] = null;
 
         $file = $request->file('image');
         $filename = uniqid('tshirt_') . '.' . $file->getClientOriginalExtension();

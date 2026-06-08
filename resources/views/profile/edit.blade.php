@@ -8,7 +8,6 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            {{-- Funcionarios nao tem acesso ao perfil: so podem alterar a password. --}}
             @unless ($user->isEmployee())
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     <div class="max-w-xl">
@@ -17,7 +16,6 @@
                 </div>
             @endunless
 
-            {{-- Dados de faturacao: exclusivo de clientes. --}}
             @if ($user->isCustomer())
                 <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                     <div class="max-w-xl">

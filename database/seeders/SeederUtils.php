@@ -29,7 +29,6 @@ trait SeederUtils
         return mt_rand($min * $factor, $max * $factor) / $factor;
     }
 
-
     public function getFileNameFromString($str, $extension)
     {
         return str_replace(' ', '_', strtolower($this->stripAccents($str))) . ".$extension";
@@ -89,7 +88,7 @@ trait SeederUtils
     {
         $paymentType = $this->faker->randomElement(['Visa', 'PayPal', 'MB WAY']);
         $paymentReference = match ($paymentType) {
-            'Visa' => mt_rand(4, 6) .
+            'Visa' => '4' .
                 $this->faker->randomNumber($nbDigits = 8, $strict = true) .
                 $this->faker->randomNumber($nbDigits = 7, $strict = true),
             'PayPal' => $email,
@@ -117,7 +116,6 @@ trait SeederUtils
         }
         File::makeDirectory($storagePath);
     }
-
 
     public function copyFileToStorage($originalFolder, $originalFileName, $folder, $newName = null, $id = null, $public = true)
     {

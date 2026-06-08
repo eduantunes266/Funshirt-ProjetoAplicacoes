@@ -6,18 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class CheckoutRequest extends FormRequest
 {
-    /**
-     * O checkout e exclusivo para clientes autenticados (enunciado G4).
-     * Administradores e funcionarios nao tem acesso.
-     */
+
     public function authorize(): bool
     {
         return $this->user()?->isCustomer() ?? false;
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
         $rules = [
@@ -28,7 +22,6 @@ class CheckoutRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
 
-        // A referencia de pagamento e validada conforme o tipo escolhido.
         switch ($this->input('payment_type')) {
             case 'Visa':
                 $rules['payment_ref'][] = 'regex:/^4\d{15}$/';
@@ -44,9 +37,6 @@ class CheckoutRequest extends FormRequest
         return $rules;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

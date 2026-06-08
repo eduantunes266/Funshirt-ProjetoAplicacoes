@@ -186,7 +186,6 @@ class TshirtImagesSeeder extends Seeder
             DB::table('tshirt_images')->insert($new_tshirtImage);
         }
 
-        // A partir daqui, vamos tratar dos tshirtImages próprios:
         $this->command->info("TshirtImages Próprias");
 
         $IDsCustomers = $this->getCustomerIDsWithProprias();
@@ -197,7 +196,6 @@ class TshirtImagesSeeder extends Seeder
             DB::table('tshirt_images')->insert($new_tshirtImage);
         }
 
-        // A partir daqui, vamos copiar as imagens dos tshirtImages e limpar categories
         $this->command->info("Copiar imagens dos tshirtImages");
 
         $imagens_tshirtImage = DB::table('tshirt_images')->get();

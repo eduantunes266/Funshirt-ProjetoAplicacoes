@@ -12,9 +12,7 @@ use Illuminate\View\View;
 
 class CustomerController extends Controller
 {
-    /**
-     * Lista e filtra os clientes da loja.
-     */
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
@@ -41,9 +39,6 @@ class CustomerController extends Controller
         return view('admin.customers.index', compact('customers', 'search', 'status'));
     }
 
-    /**
-     * Remove um cliente: soft delete se tiver historico, caso contrario remocao definitiva.
-     */
     public function destroy(User $customer): RedirectResponse
     {
         $this->authorize('delete', $customer);
@@ -53,12 +48,12 @@ class CustomerController extends Controller
             || TshirtImage::where('customer_id', $customer->id)->exists();
 
         if ($hasHistory) {
-            // Mantem o historico da plataforma intacto.
+
             $customer->customer?->delete();
             $customer->delete();
             $message = 'Cliente removido (soft delete - tem encomendas ou imagens associadas).';
         } else {
-            // Sem historico: apaga primeiro customers e depois users (ordem das chaves estrangeiras).
+
             $customer->customer?->forceDelete();
             $customer->forceDelete();
             $message = 'Cliente removido definitivamente.';

@@ -10,8 +10,6 @@ class CategoriesSeeder extends Seeder
 {
     use SeederUtils;
 
-
-    // Categories - usar esta tabela para associar aos seeds dos tshirtImages
     public static $categories = [
         "fun" => ["Engraçado", "Funny"],
         "geek" => ["Geeks", "Geeks"],
@@ -34,7 +32,7 @@ class CategoriesSeeder extends Seeder
         "vintage" => ["Vintage", "Vintage"],
         "cool" => ["Cool", "Cool"],
         "words" => ["Frases", "Phrases"]
-        //"null" => "Sem category definida"
+
     ];
 
     public function run()
@@ -44,7 +42,7 @@ class CategoriesSeeder extends Seeder
 
         foreach (CategoriesSeeder::$categories as $key => $value) {
             $id = DB::table('categories')->insertGetId(['name' => DatabaseSeeder::$seedLanguage == 'pt_PT' ? $value[0] : $value[1]]);
-            if ($key != "nosense") { /// a categoria "Sem sentido" não tem imagem associada
+            if ($key != "nosense") {
                 $newName = $this->copyFileToStorage('categories', "$key.png", 'categories', null, $id);
                 DB::table('categories')->where('id', $id)->update(['image_url' => $newName]);
             }

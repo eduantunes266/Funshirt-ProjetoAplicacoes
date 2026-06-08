@@ -29,19 +29,11 @@ class TshirtImage extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    /**
-     * Imagem do catalogo (customer_id null) vs imagem propria do cliente.
-     */
     public function isCustom(): bool
     {
         return $this->customer_id !== null;
     }
 
-    /**
-     * URL para mostrar a imagem do design:
-     * - catalogo: ficheiro publico em storage/tshirt_images
-     * - propria: rota protegida que serve o ficheiro privado (so dono + staff)
-     */
     public function fileUrl(): string
     {
         return $this->isCustom()

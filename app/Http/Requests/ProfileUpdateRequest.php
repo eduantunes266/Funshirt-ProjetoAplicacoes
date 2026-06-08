@@ -9,19 +9,12 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
-    /**
-     * Funcionarios (tipo F) nao tem acesso a edicao do perfil.
-     */
+
     public function authorize(): bool
     {
         return $this->user()->user_type !== 'F';
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
@@ -39,9 +32,6 @@ class ProfileUpdateRequest extends FormRequest
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

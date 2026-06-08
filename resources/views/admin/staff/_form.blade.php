@@ -1,5 +1,6 @@
 @php
     $isEdit = isset($staff);
+    $editingSelf = $isEdit && $staff->id === auth()->id();
 @endphp
 
 <form method="post" action="{{ $isEdit ? route('admin.staff.update', $staff) : route('admin.staff.store') }}" class="space-y-6">
@@ -24,11 +25,15 @@
 
     <div>
         <x-input-label for="user_type" :value="__('Tipo de conta')" />
-        <select id="user_type" name="user_type" required
+        <select id="user_type" name="user_type" required @disabled($editingSelf)
                 class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
             <option value="F" @selected(old('user_type', $isEdit ? $staff->user_type : 'F') === 'F')>Funcionário</option>
             <option value="A" @selected(old('user_type', $isEdit ? $staff->user_type : 'F') === 'A')>Administrador</option>
         </select>
+        @if ($editingSelf)
+            <input type="hidden" name="user_type" value="{{ $staff->user_type }}">
+            <p class="mt-1 text-xs text-gray-500">Não pode alterar o tipo da sua própria conta.</p>
+        @endif
         <x-input-error class="mt-2" :messages="$errors->get('user_type')" />
     </div>
 

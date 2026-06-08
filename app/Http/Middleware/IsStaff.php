@@ -8,14 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class IsStaff
 {
-    /**
-     * So permite acesso a funcionarios (F) e administradores (A).
-     */
+
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        if ($user && ($user->isEmployee() || $user->isAdmin())) {
+        if ($user && ! $user->blocked && ($user->isEmployee() || $user->isAdmin())) {
             return $next($request);
         }
 

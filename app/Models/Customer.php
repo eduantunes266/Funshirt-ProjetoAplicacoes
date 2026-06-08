@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
     use SoftDeletes;
 
-    // A chave primaria de customers e a mesma de users e nao e autoincremental.
     public $incrementing = false;
 
     public $timestamps = false;
@@ -23,11 +23,18 @@ class Customer extends Model
         'default_payment_ref',
     ];
 
-    /**
-     * Dados genericos do utilizador (users e a superclasse de customers).
-     */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id');
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class, 'customer_id');
+    }
+
+    public function tshirtImages(): HasMany
+    {
+        return $this->hasMany(TshirtImage::class, 'customer_id');
     }
 }

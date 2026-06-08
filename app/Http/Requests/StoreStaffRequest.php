@@ -8,17 +8,12 @@ use Illuminate\Validation\Rules\Password;
 
 class StoreStaffRequest extends FormRequest
 {
-    /**
-     * So administradores podem criar contas de staff.
-     */
+
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
-    /**
-     * @return array<string, array<int, mixed>>
-     */
     public function rules(): array
     {
         return [
@@ -30,9 +25,6 @@ class StoreStaffRequest extends FormRequest
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function messages(): array
     {
         return [

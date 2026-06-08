@@ -12,7 +12,7 @@ class PriceController extends Controller
 {
     public function edit(): View
     {
-        // A tabela prices tem (e deve ter) uma unica linha de configuracao.
+
         $price = Price::firstOrFail();
         return view('admin.prices.edit', compact('price'));
     }

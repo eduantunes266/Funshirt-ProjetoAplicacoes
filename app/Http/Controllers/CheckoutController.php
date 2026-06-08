@@ -15,9 +15,7 @@ use Illuminate\View\View;
 
 class CheckoutController extends Controller
 {
-    /**
-     * Formulario de checkout, pre-preenchido com os dados do perfil do cliente.
-     */
+
     public function index(): View|RedirectResponse
     {
         if (empty(session('cart', []))) {
@@ -29,10 +27,6 @@ class CheckoutController extends Controller
         ]);
     }
 
-    /**
-     * Finaliza a encomenda: valida, processa o pagamento na plataforma externa
-     * e, so em caso de sucesso, regista a encomenda no estado "pending".
-     */
     public function store(CheckoutRequest $request): RedirectResponse
     {
         $cart = session('cart', []);
@@ -69,7 +63,6 @@ class CheckoutController extends Controller
             ];
         }
 
-        // Pagamento simulado na plataforma externa (enunciado, seccao 7).
         $paymentError = $this->processPayment($request->payment_type, $request->payment_ref, $total);
         if ($paymentError !== null) {
             return back()->withInput()->with('error', $paymentError);
@@ -98,7 +91,6 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        // O email nao deve fazer falhar a encomenda (servico externo - mailtrap).
         try {
             Mail::to(auth()->user()->email)->send(new OrderPendingMail($order));
         } catch (\Throwable $e) {
@@ -115,10 +107,6 @@ class CheckoutController extends Controller
         return view('checkout.success');
     }
 
-    /**
-     * Envia o pedido de pagamento. Devolve null em caso de sucesso (201) ou,
-     * caso contrario, a mensagem de erro a apresentar ao cliente.
-     */
     private function processPayment(string $type, string $reference, float $value): ?string
     {
         try {

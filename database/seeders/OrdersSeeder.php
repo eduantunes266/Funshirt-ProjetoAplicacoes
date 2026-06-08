@@ -2,19 +2,16 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use phpDocumentor\Reflection\DocBlock\Tags\Var_;
 
 class OrdersSeeder extends Seeder
 {
     use SeederUtils;
 
-    private $numberOfDays = 1000;
-    private $avgOrdersDay = [10, 5, 7, 9, 12, 6, 20]; // Domingo, Segunda, terça, ...
+    private $avgOrdersDay = [10, 5, 7, 9, 12, 6, 20];
     private $qtys = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8, 9, 10];
     private $num_tshirts = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 6,  6,  6, 7, 7, 7, 8, 8, 9, 9, 10, 10, 11];
     private $status = ['closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'closed', 'canceled'];
@@ -41,18 +38,18 @@ class OrdersSeeder extends Seeder
         $precoDelta = 3;
         while ($d->lessThanOrEqualTo($today)) {
             $d->setTime(8, 0);
-            if ($i % 10 == 0) { /// 10 em 10 dias escreve no log e faz o shuffle dos customers
+            if ($i % 10 == 0) {
                 $this->command->info("Orders para o dia " . $d->format('d-m-Y'));
                 $this->shuffleCustomers();
             }
-            if ($i % 100 == 0) { /// 100 em 100 dias negócio cresce (ou diminui)
+            if ($i % 100 == 0) {
                 for ($j = 0; $j < count($this->avgOrdersDay); $j++) {
                     $fatorCrescimento = rand(-3, 5);
                     $this->avgOrdersDay[$j] += $this->avgOrdersDay[$j] * $fatorCrescimento / 100;
                 }
             }
 
-            if ($i % 300 == 0) { /// 300 em 300 dias preço cresce
+            if ($i % 300 == 0) {
                 $precoDelta--;
             }
 
@@ -78,7 +75,7 @@ class OrdersSeeder extends Seeder
             $d->addDays(1);
         }
         $this->command->info("Atualizar os preços totais das orders");
-        //DB::update('update orders set total_price = IFNULL((select sum(order_items.sub_total) from order_items where order_items.order_id = orders.id), 0)');
+
         DB::update('update orders set total_price = (select COALESCE(sum(order_items.sub_total), 0) from order_items where order_items.order_id = orders.id)');
 
         $this->command->info("Copiar os pdfs de recibos para a o storage");
@@ -88,13 +85,6 @@ class OrdersSeeder extends Seeder
         DB::update("update orders set receipt_url = CONCAT('receipt_', id, '.pdf')");
         $this->command->info("---- END ----");
 
-
-        // // Para verificar possiveis erros de tshirtImages próprios usadas nas orders de outros,
-        // // Usar o seguinte SQL - se devolver alguma linha, é porque algo está mal:
-        // select distinct t.order_id, e.customer_id, t.tshirt_image_id, e.customer_id from order_items as t inner join tshirt_images as e on e.id = t.tshirt_image_id
-        // inner join orders as enc on enc.id = t.order_id
-        // where t.tshirt_image_id in (select id from tshirt_images where customer_id is not null)
-        // AND (e.customer_id <> e.customer_id)
     }
 
     private function copyReceiptPdfsToStorage()
@@ -139,8 +129,7 @@ class OrdersSeeder extends Seeder
 
     private function createOrderArray($faker, &$dateTS, $totalOrdersDay)
     {
-        // 86400 segundos num dia
-        // 43200 segundos entre as 8h e as 20h (12h)
+
         $maxIntervalSeconds = 43200 / ($totalOrdersDay -1 ?: 1);
         $customer = $faker->randomElement($this->customers);
         $dateTS->addSeconds(rand($maxIntervalSeconds/1.4, $maxIntervalSeconds));

@@ -12,9 +12,7 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Mostra o formulario de perfil do utilizador autenticado.
-     */
+
     public function edit(Request $request): View
     {
         $user = $request->user();
@@ -25,21 +23,17 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Atualiza os dados pessoais (nome, email, genero e foto de perfil).
-     */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $user = $request->user();
         $user->fill($request->safe()->only(['name', 'email', 'gender']));
 
-        // Alterar o email obriga a nova verificacao.
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
         }
 
         if ($request->hasFile('photo')) {
-            // Remove a foto antiga (exceto o avatar partilhado).
+
             if ($user->photo_url && $user->photo_url !== 'anonymous.png') {
                 Storage::disk('public')->delete('photos/'.$user->photo_url);
             }
@@ -55,9 +49,6 @@ class ProfileController extends Controller
         return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
 
-    /**
-     * Atualiza os dados de faturacao predefinidos (apenas clientes).
-     */
     public function updateBilling(CustomerBillingRequest $request): RedirectResponse
     {
         $request->user()->customer()->updateOrCreate([], $request->validated());

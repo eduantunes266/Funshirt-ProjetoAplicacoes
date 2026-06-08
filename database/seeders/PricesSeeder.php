@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 class PricesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+
     public function run(): void
     {
         $this->command->info("Configuracação de preços");

@@ -2,18 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
-    |
-    */
-
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -35,7 +23,6 @@ return [
         ],
     ],
 
-    // Plataforma de pagamentos simulada (enunciado, secção 7).
     'payments' => [
         'url' => env('PAYMENTS_API_URL', 'https://ainet-payments-api.vercel.app'),
     ],

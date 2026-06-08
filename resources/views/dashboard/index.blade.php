@@ -8,7 +8,6 @@
 
     <h1 class="text-2xl font-semibold text-gray-800 mb-6">Painel de Estatísticas</h1>
 
-    {{-- KPIs principais --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
         <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
             <p class="text-sm text-gray-500">Faturação total</p>
@@ -32,7 +31,6 @@
         </div>
     </div>
 
-    {{-- KPIs secundários --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow border border-gray-100 p-5">
             <p class="text-sm text-gray-500">Faturação este mês</p>
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    {{-- Encomendas por estado --}}
     <h2 class="text-lg font-medium text-gray-800 mb-3">Encomendas por estado</h2>
     <div class="grid grid-cols-3 gap-4 mb-8">
         <div class="bg-white rounded-lg shadow border border-gray-100 p-5 text-center">
@@ -70,7 +67,6 @@
         </div>
     </div>
 
-    {{-- Gráfico: faturação dos últimos 12 meses --}}
     <div class="bg-white rounded-lg shadow border border-gray-100 p-6 mb-8">
         <h2 class="text-lg font-medium text-gray-800 mb-4">Faturação dos últimos 12 meses</h2>
         @if ($maxMonthly > 0)
@@ -88,7 +84,6 @@
         @endif
     </div>
 
-    {{-- Top imagens e top categorias --}}
     <div class="grid md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-lg shadow border border-gray-100 p-6">
             <h2 class="text-lg font-medium text-gray-800 mb-4">Top 5 imagens mais vendidas</h2>
@@ -139,7 +134,6 @@
         </div>
     </div>
 
-    {{-- Top clientes --}}
     <div class="bg-white rounded-lg shadow border border-gray-100 p-6 mb-8">
         <h2 class="text-lg font-medium text-gray-800 mb-4">Top 5 clientes por valor gasto</h2>
         <table class="min-w-full text-sm">
@@ -164,7 +158,6 @@
         </table>
     </div>
 
-    {{-- Últimas encomendas --}}
     <div class="bg-white rounded-lg shadow border border-gray-100 p-6">
         <h2 class="text-lg font-medium text-gray-800 mb-4">Últimas 5 encomendas</h2>
         <table class="min-w-full text-sm">

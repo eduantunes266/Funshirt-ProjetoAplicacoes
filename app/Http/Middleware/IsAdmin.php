@@ -10,7 +10,9 @@ class IsAdmin
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check() && auth()->user()->user_type === 'A') {
+        $user = auth()->user();
+
+        if ($user && $user->user_type === 'A' && ! $user->blocked) {
             return $next($request);
         }
 

@@ -27,7 +27,6 @@ class ColorController extends Controller
     {
         Color::create($request->safe()->only(['code', 'name']));
 
-        // T-shirt base: filename = code (.jpg). Override extension to .jpg para consistencia.
         $request->file('base_image')->storeAs('tshirt_base', $request->code . '.jpg', 'public');
 
         return redirect()->route('admin.colors.index')
@@ -53,8 +52,7 @@ class ColorController extends Controller
 
     public function destroy(Color $color): RedirectResponse
     {
-        // Soft delete da cor; mantemos o ficheiro tshirt_base em disco
-        // para encomendas historicas que ainda referenciam esta cor.
+
         $color->delete();
 
         return redirect()->route('admin.colors.index')

@@ -54,7 +54,6 @@ class CartController extends Controller
 
         $tshirt = TshirtImage::findOrFail($id);
 
-        // Imagens proprias so podem ser adicionadas pelo seu dono (privacidade - G5).
         if ($tshirt->customer_id !== null) {
             abort_unless(auth()->id() === $tshirt->customer_id, 403);
         }
@@ -97,7 +96,6 @@ class CartController extends Controller
             return redirect()->back();
         }
 
-        // Quantidade 0 remove o item (requisito do enunciado G3).
         if ((int) $request->quantity === 0) {
             unset($cart[$key]);
             session()->put('cart', $cart);
@@ -107,7 +105,7 @@ class CartController extends Controller
         $item = $cart[$key];
         unset($cart[$key]);
 
-        $newKey = ($item['tshirt_id'] ?? $key) . '_' . $request->size . '_' . $request->color_code;
+        $newKey = $item['tshirt_id'] . '_' . $request->size . '_' . $request->color_code;
 
         if (isset($cart[$newKey])) {
             $cart[$newKey]['quantity'] += (int) $request->quantity;

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Color extends Model
@@ -16,4 +17,9 @@ class Color extends Model
     public $incrementing = false;
 
     protected $fillable = ['code', 'name'];
+
+    public function orderItems(): HasMany
+    {
+        return $this->hasMany(OrderItem::class, 'color_code', 'code');
+    }
 }
