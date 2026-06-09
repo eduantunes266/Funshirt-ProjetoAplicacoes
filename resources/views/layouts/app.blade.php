@@ -79,7 +79,7 @@
             </main>
 
             <footer class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 text-center text-xs text-gray-500">
-                © {{ date('Y') }} FunShirt · Aplicações &amp; Interfaces Web · ESTGA
+                © {{ date('Y') }} FunShirt
             </footer>
         </div>
     </body>

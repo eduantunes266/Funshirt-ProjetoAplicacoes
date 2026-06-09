@@ -25,7 +25,7 @@
                 {{ $slot }}
             </div>
 
-            <p class="mt-6 text-xs text-gray-500">© {{ date('Y') }} FunShirt · ESTGA</p>
+            <p class="mt-6 text-xs text-gray-500">© {{ date('Y') }} FunShirt</p>
         </div>
     </body>
 </html>

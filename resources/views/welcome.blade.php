@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        <p class="mt-10 text-xs text-gray-500">© {{ date('Y') }} FunShirt · Aplicações &amp; Interfaces Web · ESTGA</p>
+        <p class="mt-10 text-xs text-gray-500">© {{ date('Y') }} FunShirt</p>
     </div>
 </body>
 </html>
