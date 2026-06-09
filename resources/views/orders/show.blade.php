@@ -4,17 +4,17 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Encomenda #' . $order->id) }}
             </h2>
-            <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">← Voltar</a>
+            <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:text-indigo-600 transition">← Voltar</a>
         </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="py-6">
+        <div class="max-w-5xl mx-auto space-y-6">
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white shadow rounded-lg p-5">
-                    <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Informação geral</h3>
-                    <dl class="space-y-2 text-sm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
+                    <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Informação geral</h3>
+                    <dl class="space-y-2.5 text-sm">
                         <div class="flex justify-between"><dt class="text-gray-500">Cliente:</dt><dd class="text-gray-900 text-right">{{ $order->customer?->name ?? '#'.$order->customer_id }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Data:</dt><dd class="text-gray-900">{{ $order->date }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Total:</dt><dd class="font-semibold text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</dd></div>
@@ -22,23 +22,23 @@
                             <dt class="text-gray-500">Estado:</dt>
                             <dd>
                                 @if($order->status === 'pending')
-                                    <span class="inline-block rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold px-2 py-1">Pendente</span>
+                                    <span class="inline-block rounded-full bg-amber-50 text-amber-700 text-xs font-semibold px-2.5 py-1 ring-1 ring-amber-200">Pendente</span>
                                 @elseif($order->status === 'closed')
-                                    <span class="inline-block rounded-full bg-green-100 text-green-800 text-xs font-semibold px-2 py-1">Fechada</span>
+                                    <span class="inline-block rounded-full bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 ring-1 ring-emerald-200">Fechada</span>
                                 @else
-                                    <span class="inline-block rounded-full bg-red-100 text-red-800 text-xs font-semibold px-2 py-1">Anulada</span>
+                                    <span class="inline-block rounded-full bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 ring-1 ring-red-200">Anulada</span>
                                 @endif
                             </dd>
                         </div>
                     </dl>
 
                     @if($order->status === 'pending')
-                        <div class="mt-4 space-y-3">
+                        <div class="mt-5 space-y-3 border-t border-gray-100 pt-4">
                             <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="status" value="closed">
-                                <button type="submit" class="rounded-md bg-green-600 text-white text-sm font-semibold px-3 py-2 hover:bg-green-500">
+                                <button type="submit" class="w-full rounded-lg bg-emerald-600 text-white text-sm font-semibold px-3 py-2 shadow-sm hover:bg-emerald-700 transition">
                                     Marcar como fechada
                                 </button>
                             </form>
@@ -49,8 +49,8 @@
                                     @method('PUT')
                                     <input type="hidden" name="status" value="canceled">
                                     <textarea name="reason_for_cancellation" rows="2" placeholder="Motivo da anulação (opcional)"
-                                              class="w-full rounded-md border-gray-300 text-sm"></textarea>
-                                    <button type="submit" class="rounded-md bg-red-600 text-white text-sm font-semibold px-3 py-2 hover:bg-red-500">
+                                              class="w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                                    <button type="submit" class="w-full rounded-lg bg-red-600 text-white text-sm font-semibold px-3 py-2 shadow-sm hover:bg-red-700 transition">
                                         Anular encomenda
                                     </button>
                                 </form>
@@ -59,15 +59,15 @@
                     @endif
 
                     @if($order->notes)
-                        <div class="mt-4">
-                            <h4 class="text-xs uppercase tracking-wide text-gray-500 mb-1">Notas do cliente</h4>
+                        <div class="mt-5 border-t border-gray-100 pt-4">
+                            <h4 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Notas do cliente</h4>
                             <p class="text-sm text-gray-700">{{ $order->notes }}</p>
                         </div>
                     @endif
 
                     @if($order->status === 'canceled' && $order->reason_for_cancellation)
-                        <div class="mt-4">
-                            <h4 class="text-xs uppercase tracking-wide text-gray-500 mb-1">Motivo da anulação</h4>
+                        <div class="mt-5 border-t border-gray-100 pt-4">
+                            <h4 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Motivo da anulação</h4>
                             <p class="text-sm text-red-700">{{ $order->reason_for_cancellation }}</p>
                         </div>
                     @endif
@@ -75,16 +75,17 @@
                     @if($order->status === 'closed' && $order->receipt_url)
                         @can('downloadReceipt', $order)
                             <a href="{{ route('receipts.download', $order->id) }}"
-                               class="mt-4 inline-block rounded-md bg-indigo-600 text-white text-sm font-semibold px-4 py-2 hover:bg-indigo-500">
+                               class="mt-5 inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold px-4 py-2 shadow-sm hover:bg-indigo-700 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
                                 Descarregar recibo (PDF)
                             </a>
                         @endcan
                     @endif
                 </div>
 
-                <div class="bg-white shadow rounded-lg p-5">
-                    <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Dados de faturação</h3>
-                    <dl class="space-y-2 text-sm">
+                <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
+                    <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Dados de faturação</h3>
+                    <dl class="space-y-2.5 text-sm">
                         <div class="flex justify-between"><dt class="text-gray-500">NIF:</dt><dd class="text-gray-900">{{ $order->nif }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Morada:</dt><dd class="text-gray-900 text-right">{{ $order->address }}</dd></div>
                         <div class="flex justify-between"><dt class="text-gray-500">Pagamento:</dt><dd class="text-gray-900">{{ $order->payment_type }}</dd></div>
@@ -93,24 +94,24 @@
                 </div>
             </div>
 
-            <div class="bg-white shadow rounded-lg p-5">
-                <h3 class="text-sm uppercase tracking-wide text-gray-500 mb-3">Itens da encomenda</h3>
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
+                <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Itens da encomenda</h3>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-gray-500">
-                                <th class="px-3 py-2">T-shirt</th>
+                            <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50">
+                                <th class="px-3 py-2 rounded-l-lg">T-shirt</th>
                                 <th class="px-3 py-2">Cor</th>
                                 <th class="px-3 py-2">Tamanho</th>
                                 <th class="px-3 py-2 text-right">Qtd</th>
                                 <th class="px-3 py-2 text-right">Preço un.</th>
-                                <th class="px-3 py-2 text-right">Subtotal</th>
+                                <th class="px-3 py-2 text-right rounded-r-lg">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @foreach($items as $item)
-                                <tr>
+                                <tr class="hover:bg-gray-50/60">
                                     <td class="px-3 py-2">
                                         <x-tshirt-preview
                                             :color-code="$item->color_code"

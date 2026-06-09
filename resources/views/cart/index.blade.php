@@ -3,18 +3,27 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('O meu Carrinho') }}
         </h2>
+        <p class="text-sm text-gray-500 mt-0.5">Revê os artigos antes de finalizar a encomenda.</p>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-4 sm:p-8">
+    <div class="py-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
                 @include('admin.partials.flash')
 
                 @if(empty($cart))
-                    <p class="text-gray-500">O seu carrinho está vazio. <a href="{{ route('home') }}" class="text-indigo-600 hover:underline">Ver catálogo</a>.</p>
+                    <div class="text-center py-10">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                        </div>
+                        <p class="text-gray-600">O seu carrinho está vazio.</p>
+                        <a href="{{ route('home') }}" class="mt-4 inline-flex items-center gap-2 rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-semibold shadow-sm hover:bg-indigo-700 transition">
+                            Ver catálogo
+                        </a>
+                    </div>
                 @else
-                    <div class="divide-y divide-gray-200">
+                    <div class="divide-y divide-gray-100">
                         @foreach($cart as $key => $item)
                             <div class="py-4 flex flex-wrap items-center gap-4">
 
@@ -25,19 +34,19 @@
                                     class="shrink-0" />
 
                                 <div class="min-w-[200px] flex-1">
-                                    <h3 class="font-medium text-gray-900">{{ $item['name'] }}</h3>
+                                    <h3 class="font-semibold text-gray-900">{{ $item['name'] }}</h3>
                                     <p class="text-sm text-gray-500 mt-1">{{ $item['description'] }}</p>
                                     <div class="mt-2 flex flex-wrap items-center gap-2">
                                         <span class="text-sm text-gray-700">
                                             <strong>{{ number_format($item['unit_price'], 2, ',', ' ') }} €</strong> / un.
                                         </span>
                                         @if($item['has_discount'])
-                                            <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">
+                                            <span class="inline-block bg-emerald-50 text-emerald-700 text-xs font-semibold px-2 py-1 rounded-full ring-1 ring-emerald-200">
                                                 Desconto de quantidade aplicado
                                             </span>
                                         @endif
                                         @if(($item['is_custom'] ?? false))
-                                            <span class="inline-block bg-purple-100 text-purple-800 text-xs font-semibold px-2 py-1 rounded">
+                                            <span class="inline-block bg-fuchsia-50 text-fuchsia-700 text-xs font-semibold px-2 py-1 rounded-full ring-1 ring-fuchsia-200">
                                                 Personalizada
                                             </span>
                                         @endif
@@ -49,7 +58,7 @@
 
                                     <div>
                                         <label class="block text-xs text-gray-500">Tamanho</label>
-                                        <select name="size" required class="rounded-md border-gray-300 text-sm">
+                                        <select name="size" required class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                             @foreach($sizes as $sz)
                                                 <option value="{{ $sz }}" {{ ($item['size'] ?? '') === $sz ? 'selected' : '' }}>{{ $sz }}</option>
                                             @endforeach
@@ -58,7 +67,7 @@
 
                                     <div>
                                         <label class="block text-xs text-gray-500">Cor</label>
-                                        <select name="color_code" required class="rounded-md border-gray-300 text-sm">
+                                        <select name="color_code" required class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                             @foreach($colors as $color)
                                                 <option value="{{ $color->code }}" {{ ($item['color_code'] ?? '') === $color->code ? 'selected' : '' }}>{{ $color->name }}</option>
                                             @endforeach
@@ -68,10 +77,10 @@
                                     <div>
                                         <label class="block text-xs text-gray-500">Qtd <span class="text-gray-400">(0 = remover)</span></label>
                                         <input type="number" name="quantity" value="{{ $item['quantity'] }}" min="0"
-                                               class="w-20 rounded-md border-gray-300 text-sm">
+                                               class="w-20 rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     </div>
 
-                                    <button type="submit" class="rounded-md bg-indigo-600 text-white text-sm font-semibold px-3 py-2 hover:bg-indigo-500">
+                                    <button type="submit" class="rounded-lg bg-indigo-600 text-white text-sm font-semibold px-3 py-2 shadow-sm hover:bg-indigo-700 transition">
                                         Atualizar
                                     </button>
                                 </form>
@@ -83,7 +92,7 @@
 
                                 <form action="{{ route('cart.remove', $key) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="text-red-600 hover:underline text-sm">Remover</button>
+                                    <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Remover</button>
                                 </form>
                             </div>
                         @endforeach
@@ -93,7 +102,7 @@
                         <form action="{{ route('cart.clear') }}" method="POST"
                               onsubmit="return confirm('Esvaziar o carrinho?')">
                             @csrf
-                            <button type="submit" class="rounded-md bg-gray-600 text-white text-sm font-semibold px-4 py-2 hover:bg-gray-500">
+                            <button type="submit" class="rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-semibold px-4 py-2 hover:bg-gray-50 transition">
                                 Limpar carrinho
                             </button>
                         </form>
@@ -104,7 +113,7 @@
                                 <div class="text-2xl font-bold text-gray-900">{{ number_format($total, 2, ',', ' ') }} €</div>
                             </div>
                             <a href="{{ route('checkout.index') }}"
-                               class="rounded-md bg-green-600 text-white font-semibold px-5 py-3 hover:bg-green-500">
+                               class="rounded-lg bg-emerald-600 text-white font-semibold px-5 py-3 shadow-sm hover:bg-emerald-700 transition">
                                 Ir para pagamento
                             </a>
                         </div>

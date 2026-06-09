@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-semibold text-gray-900">
             {{ __('Dados de faturacao') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-gray-500">
             {{ __('Estes dados pre-preenchem as suas encomendas. Pode sempre edita-los no checkout.') }}
         </p>
     </header>
@@ -25,7 +25,7 @@
         <div>
             <x-input-label for="address" :value="__('Morada de entrega')" />
             <textarea id="address" name="address" rows="3"
-                      class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('address', $customer?->address) }}</textarea>
+                      class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">{{ old('address', $customer?->address) }}</textarea>
             <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
@@ -33,7 +33,7 @@
         <div>
             <x-input-label for="default_payment_type" :value="__('Tipo de pagamento preferencial')" />
             <select id="default_payment_type" name="default_payment_type"
-                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
                 <option value="">{{ __('-- Sem preferencia --') }}</option>
                 @foreach (['Visa', 'PayPal', 'MB WAY'] as $type)
                     <option value="{{ $type }}" @selected(old('default_payment_type', $customer?->default_payment_type) === $type)>{{ $type }}</option>

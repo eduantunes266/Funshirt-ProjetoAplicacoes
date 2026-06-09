@@ -5,9 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-6">
+    <div class="py-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6 sm:p-8">
 
                 <form method="POST" action="{{ route('admin.tshirts.store') }}"
                       enctype="multipart/form-data" class="space-y-5">

@@ -5,9 +5,9 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-6">
+    <div class="py-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6 sm:p-8">
 
                 <form method="POST" action="{{ route('admin.colors.update', $color->code) }}"
                       enctype="multipart/form-data" class="space-y-5">
@@ -15,7 +15,7 @@
                     @method('PUT')
 
                     <div class="flex items-center gap-3">
-                        <span class="inline-block h-10 w-10 rounded border border-gray-300"
+                        <span class="inline-block h-10 w-10 rounded-lg border border-gray-300 shadow-sm"
                               style="background-color: #{{ $color->code }};"></span>
                         <div class="font-mono text-gray-700">#{{ $color->code }}</div>
                     </div>
@@ -35,7 +35,7 @@
                         <div class="mb-2">
                             <img src="{{ asset('storage/tshirt_base/' . $color->code . '.jpg') }}"
                                  alt="T-shirt base atual"
-                                 class="h-24 w-24 object-contain border border-gray-200 rounded bg-gray-50"
+                                 class="h-24 w-24 object-contain border border-gray-200 rounded-lg bg-gradient-to-br from-slate-50 to-indigo-50/60"
                                  onerror="this.style.display='none'">
                         </div>
                         <input id="base_image" name="base_image" type="file" accept="image/jpeg,image/png"

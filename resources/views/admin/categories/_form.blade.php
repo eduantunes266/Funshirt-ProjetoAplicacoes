@@ -14,7 +14,7 @@
         <div class="mb-2">
             <img src="{{ asset('storage/categories/' . $category->image_url) }}"
                  alt="Imagem atual"
-                 class="h-24 w-24 object-contain border border-gray-200 rounded bg-gray-50">
+                 class="h-24 w-24 object-contain border border-gray-200 rounded-lg bg-gradient-to-br from-slate-50 to-indigo-50/60">
         </div>
     @endif
     <input id="image" name="image" type="file" accept="image/*"

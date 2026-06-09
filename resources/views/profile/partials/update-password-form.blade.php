@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-semibold text-gray-900">
             {{ __('Alterar palavra-passe') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-gray-500">
             {{ __('Por seguranca, confirme a palavra-passe atual antes de definir uma nova.') }}
         </p>
     </header>

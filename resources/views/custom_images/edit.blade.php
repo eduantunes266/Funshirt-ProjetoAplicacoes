@@ -5,11 +5,11 @@
         </h2>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg p-6">
+    <div class="py-6">
+        <div class="max-w-xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6 sm:p-8">
 
-                <div class="mb-5 flex justify-center bg-gray-50 rounded-md p-4">
+                <div class="mb-5 flex justify-center bg-gradient-to-br from-slate-50 to-fuchsia-50/60 rounded-xl p-4">
                     <img src="{{ route('custom-images.file', $image) }}" alt="{{ $image->name }}" class="h-40 object-contain">
                 </div>
 
@@ -26,7 +26,7 @@
                     <div>
                         <x-input-label for="description" value="Descrição (opcional)" />
                         <textarea id="description" name="description" rows="3"
-                                  class="mt-1 block w-full rounded-md border-gray-300 text-sm">{{ old('description', $image->description) }}</textarea>
+                                  class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('description', $image->description) }}</textarea>
                         <x-input-error :messages="$errors->get('description')" class="mt-2" />
                     </div>
 

@@ -26,7 +26,7 @@
     <div>
         <x-input-label for="user_type" :value="__('Tipo de conta')" />
         <select id="user_type" name="user_type" required @disabled($editingSelf)
-                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
             <option value="F" @selected(old('user_type', $isEdit ? $staff->user_type : 'F') === 'F')>Funcionário</option>
             <option value="A" @selected(old('user_type', $isEdit ? $staff->user_type : 'F') === 'A')>Administrador</option>
         </select>
@@ -40,7 +40,7 @@
     <div>
         <x-input-label for="gender" :value="__('Género')" />
         <select id="gender" name="gender" required
-                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
             <option value="M" @selected(old('gender', $isEdit ? $staff->gender : 'M') === 'M')>Masculino</option>
             <option value="F" @selected(old('gender', $isEdit ? $staff->gender : 'M') === 'F')>Feminino</option>
         </select>

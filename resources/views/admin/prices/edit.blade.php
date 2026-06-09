@@ -5,14 +5,14 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-4 sm:p-8">
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
                 @include('admin.partials.tabs')
                 @include('admin.partials.flash')
 
-                <h3 class="text-lg font-medium text-gray-900 mb-1">Configuração de preços</h3>
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">Configuração de preços</h3>
                 <p class="text-sm text-gray-500 mb-6">
                     Estes preços aplicam-se a todo o catálogo e a todas as t-shirts personalizadas.
                 </p>

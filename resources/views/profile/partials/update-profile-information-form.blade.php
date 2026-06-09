@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h2 class="text-lg font-medium text-gray-900">
+        <h2 class="text-lg font-semibold text-gray-900">
             {{ __('Dados pessoais') }}
         </h2>
 
-        <p class="mt-1 text-sm text-gray-600">
+        <p class="mt-1 text-sm text-gray-500">
             {{ __('Atualize o seu nome, email, genero e foto de perfil.') }}
         </p>
     </header>
@@ -22,9 +22,9 @@
             <x-input-label :value="__('Foto de perfil')" />
             <div class="mt-2 flex items-center gap-4">
                 <img src="{{ $user->photoLink() }}" alt="{{ __('Foto de perfil') }}"
-                     class="h-20 w-20 rounded-full object-cover border border-gray-200">
+                     class="h-20 w-20 rounded-full object-cover border border-gray-200 shadow-sm">
                 <input type="file" name="photo" accept="image/*"
-                       class="block text-sm text-gray-600 file:mr-4 file:rounded-md file:border-0 file:bg-gray-800 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-gray-700">
+                       class="block text-sm text-gray-600 file:mr-4 file:rounded-lg file:border-0 file:bg-indigo-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-indigo-700 cursor-pointer">
             </div>
             <x-input-error class="mt-2" :messages="$errors->get('photo')" />
         </div>
@@ -65,7 +65,7 @@
         <div>
             <x-input-label for="gender" :value="__('Genero')" />
             <select id="gender" name="gender" required
-                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                    class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
                 <option value="M" @selected(old('gender', $user->gender) === 'M')>{{ __('Masculino') }}</option>
                 <option value="F" @selected(old('gender', $user->gender) === 'F')>{{ __('Feminino') }}</option>
             </select>

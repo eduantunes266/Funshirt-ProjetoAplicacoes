@@ -3,11 +3,12 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Finalizar Encomenda') }}
         </h2>
+        <p class="text-sm text-gray-500 mt-0.5">Confirma os teus dados e escolhe a forma de pagamento.</p>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow rounded-lg p-6">
+    <div class="py-6">
+        <div class="max-w-2xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6 sm:p-8">
 
                 @include('admin.partials.flash')
 
@@ -33,7 +34,7 @@
                     <div>
                         <x-input-label for="payment_type" value="Método de Pagamento" />
                         <select id="payment_type" name="payment_type" required
-                                class="mt-1 block w-full rounded-md border-gray-300 text-sm">
+                                class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @foreach (['Visa', 'PayPal', 'MB WAY'] as $type)
                                 <option value="{{ $type }}"
                                     {{ old('payment_type', $customer?->default_payment_type) === $type ? 'selected' : '' }}>
@@ -57,12 +58,12 @@
                     <div>
                         <x-input-label for="notes" value="Notas (opcional)" />
                         <textarea id="notes" name="notes" rows="3"
-                                  class="mt-1 block w-full rounded-md border-gray-300 text-sm">{{ old('notes') }}</textarea>
+                                  class="mt-1 block w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('notes') }}</textarea>
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
 
                     <button type="submit"
-                            class="w-full rounded-md bg-green-600 text-white font-semibold py-3 hover:bg-green-500">
+                            class="w-full rounded-lg bg-emerald-600 text-white font-semibold py-3 shadow-sm hover:bg-emerald-700 transition">
                         Confirmar Encomenda e Pagar
                     </button>
                 </form>

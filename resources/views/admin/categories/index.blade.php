@@ -5,58 +5,58 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white shadow sm:rounded-lg p-4 sm:p-8">
+    <div class="py-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
                 @include('admin.partials.tabs')
                 @include('admin.partials.flash')
 
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-lg font-medium text-gray-900">Categorias</h3>
+                    <h3 class="text-lg font-semibold text-gray-900">Categorias</h3>
                     <a href="{{ route('admin.categories.create') }}"
-                       class="inline-flex items-center rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
+                       class="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-700 transition">
                         + Nova categoria
                     </a>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <table class="min-w-full text-sm">
                         <thead>
-                            <tr class="text-left text-gray-500">
-                                <th class="px-3 py-2">Imagem</th>
-                                <th class="px-3 py-2">Nome</th>
-                                <th class="px-3 py-2 text-right">Ações</th>
+                            <tr class="text-left text-xs uppercase tracking-wider text-gray-500 bg-gray-50">
+                                <th class="px-3 py-3 rounded-l-lg">Imagem</th>
+                                <th class="px-3 py-3">Nome</th>
+                                <th class="px-3 py-3 text-right rounded-r-lg">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             @forelse ($categories as $category)
-                                <tr>
-                                    <td class="px-3 py-2">
+                                <tr class="hover:bg-gray-50/60">
+                                    <td class="px-3 py-3">
                                         @if ($category->image_url)
                                             <img src="{{ asset('storage/categories/' . $category->image_url) }}"
                                                  alt="{{ $category->name }}"
-                                                 class="h-12 w-12 object-contain border border-gray-200 rounded bg-gray-50">
+                                                 class="h-12 w-12 object-contain border border-gray-200 rounded-lg bg-gradient-to-br from-slate-50 to-indigo-50/60">
                                         @else
                                             <span class="text-xs text-gray-400">—</span>
                                         @endif
                                     </td>
-                                    <td class="px-3 py-2 text-gray-900 font-medium">{{ $category->name }}</td>
-                                    <td class="px-3 py-2">
+                                    <td class="px-3 py-3 text-gray-900 font-medium">{{ $category->name }}</td>
+                                    <td class="px-3 py-3">
                                         <div class="flex items-center justify-end gap-3">
-                                            <a href="{{ route('admin.categories.edit', $category) }}" class="text-indigo-600 hover:underline">Editar</a>
+                                            <a href="{{ route('admin.categories.edit', $category) }}" class="text-indigo-600 hover:underline font-medium">Editar</a>
                                             <form method="post" action="{{ route('admin.categories.destroy', $category) }}"
                                                   onsubmit="return confirm('Eliminar a categoria {{ $category->name }}?')">
                                                 @csrf
                                                 @method('delete')
-                                                <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                                                <button type="submit" class="text-red-600 hover:underline font-medium">Eliminar</button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-3 py-6 text-center text-gray-500">Sem categorias a apresentar.</td>
+                                    <td colspan="3" class="px-3 py-8 text-center text-gray-500">Sem categorias a apresentar.</td>
                                 </tr>
                             @endforelse
                         </tbody>
