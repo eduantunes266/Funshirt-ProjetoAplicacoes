@@ -38,7 +38,7 @@
                                 @endif
                                 @if (auth()->user()->isAdmin())
                                     <a href="{{ route('admin.dashboard') }}" class="hover:text-indigo-600 transition">Painel</a>
-                                    <a href="{{ route('admin.staff.index') }}" class="hover:text-indigo-600 transition">Utilizadores</a>
+                                    <a href="{{ route('admin.staff.index') }}" class="hover:text-indigo-600 transition">Dashboard</a>
                                     <a href="{{ route('admin.tshirts.index') }}" class="hover:text-indigo-600 transition">Gestão Catálogo</a>
                                 @endif
                             @endauth
