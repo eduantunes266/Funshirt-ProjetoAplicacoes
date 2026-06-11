@@ -1,17 +1,23 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Gestão do Catálogo') }}
         </h2>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
+                {{-- Separadores de Navegação (T-shirts, Categorias, Cores) --}}
                 @include('admin.partials.tabs')
+                
+                {{-- Mensagens de Sucesso ou Erro --}}
                 @include('admin.partials.flash')
 
+                {{-- Cabeçalho da Listagem com Botão Nova Categoria --}}
                 <div class="mb-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Categorias</h3>
                     <a href="{{ route('admin.categories.create') }}"
@@ -20,6 +26,7 @@
                     </a>
                 </div>
 
+                {{-- Tabela de Categorias --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
@@ -30,9 +37,11 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
+                            {{-- Itera sobre as categorias passadas pelo controlador --}}
                             @forelse ($categories as $category)
                                 <tr class="hover:bg-gray-50/60">
                                     <td class="px-3 py-3">
+                                        {{-- Apresenta a imagem se existir --}}
                                         @if ($category->image_url)
                                             <img src="{{ asset('storage/categories/' . $category->image_url) }}"
                                                  alt="{{ $category->name }}"
@@ -43,6 +52,7 @@
                                     </td>
                                     <td class="px-3 py-3 text-gray-900 font-medium">{{ $category->name }}</td>
                                     <td class="px-3 py-3">
+                                        {{-- Botões de Ação: Editar e Eliminar --}}
                                         <div class="flex items-center justify-end gap-3">
                                             <a href="{{ route('admin.categories.edit', $category) }}" class="text-indigo-600 hover:underline font-medium">Editar</a>
                                             <form method="post" action="{{ route('admin.categories.destroy', $category) }}"
@@ -63,6 +73,7 @@
                     </table>
                 </div>
 
+                {{-- Paginação --}}
                 <div class="mt-4">
                     {{ $categories->links() }}
                 </div>

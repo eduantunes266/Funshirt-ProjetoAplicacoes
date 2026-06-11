@@ -1,17 +1,21 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Gestão de Utilizadores') }}
         </h2>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
+                {{-- Separadores e Mensagens --}}
                 @include('admin.partials.tabs')
                 @include('admin.partials.flash')
 
+                {{-- Cabeçalho da Listagem com Botão Nova Conta --}}
                 <div class="mb-4 flex items-center justify-between">
                     <h3 class="text-lg font-semibold text-gray-900">Funcionários e Administradores</h3>
                     <a href="{{ route('admin.staff.create') }}"
@@ -20,6 +24,7 @@
                     </a>
                 </div>
 
+                {{-- Tabela de Equipa (Staff) --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
                         <thead>
@@ -32,9 +37,11 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
+                            {{-- Itera sobre a lista de funcionários --}}
                             @forelse ($staff as $person)
                                 <tr class="hover:bg-gray-50/60">
                                     <td class="px-3 py-3">
+                                        {{-- Foto e Nome --}}
                                         <div class="flex items-center gap-3">
                                             <img src="{{ $person->photoLink() }}" alt="" class="h-9 w-9 rounded-full object-cover border border-gray-200">
                                             <span class="font-medium text-gray-900">{{ $person->name }}</span>
@@ -42,6 +49,8 @@
                                     </td>
                                     <td class="px-3 py-3 text-gray-600">{{ $person->email }}</td>
                                     <td class="px-3 py-3 text-gray-700">{{ $person->user_type === 'A' ? 'Administrador' : 'Funcionário' }}</td>
+                                    
+                                    {{-- Estado da conta (Bloqueado ou Ativo) --}}
                                     <td class="px-3 py-3">
                                         @if ($person->blocked)
                                             <span class="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-semibold ring-1 ring-red-200">Bloqueado</span>
@@ -49,10 +58,13 @@
                                             <span class="rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 text-xs font-semibold ring-1 ring-emerald-200">Ativo</span>
                                         @endif
                                     </td>
+                                    
+                                    {{-- Ações sobre o funcionário --}}
                                     <td class="px-3 py-3">
                                         <div class="flex items-center justify-end gap-3">
                                             <a href="{{ route('admin.staff.edit', $person) }}" class="text-indigo-600 hover:underline font-medium">Editar</a>
 
+                                            {{-- Impede que o utilizador autenticado bloqueie ou remova a sua própria conta --}}
                                             @if ($person->id !== auth()->id())
                                                 <form method="post" action="{{ route('admin.accounts.toggle-block', $person) }}">
                                                     @csrf
@@ -82,6 +94,7 @@
                     </table>
                 </div>
 
+                {{-- Paginação --}}
                 <div class="mt-4">
                     {{ $staff->links() }}
                 </div>

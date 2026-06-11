@@ -1,5 +1,7 @@
+{{-- Variáveis e propriedades passadas para o componente --}}
 @props(['tshirt' => null, 'categories'])
 
+{{-- Campo Nome --}}
 <div>
     <x-input-label for="name" value="Nome" />
     <x-text-input id="name" name="name" type="text"
@@ -8,6 +10,7 @@
     <x-input-error :messages="$errors->get('name')" class="mt-2" />
 </div>
 
+{{-- Campo Descrição --}}
 <div>
     <x-input-label for="description" value="Descrição" />
     <textarea id="description" name="description" rows="3"
@@ -15,6 +18,7 @@
     <x-input-error :messages="$errors->get('description')" class="mt-2" />
 </div>
 
+{{-- Campo Categoria --}}
 <div>
     <x-input-label for="category_id" value="Categoria (opcional)" />
     <select id="category_id" name="category_id"
@@ -29,8 +33,11 @@
     <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
 </div>
 
+{{-- Campo Imagem --}}
 <div>
     <x-input-label for="image" :value="$tshirt ? 'Substituir imagem (opcional)' : 'Imagem'" />
+    
+    {{-- Pré-visualização da imagem atual --}}
     @if ($tshirt && $tshirt->image_url)
         <div class="mb-2">
             <img src="{{ asset('storage/tshirt_images/' . $tshirt->image_url) }}"
@@ -38,6 +45,8 @@
                  class="h-32 w-32 object-contain border border-gray-200 rounded-lg bg-gradient-to-br from-slate-50 to-indigo-50/60">
         </div>
     @endif
+    
+    {{-- Upload de nova imagem --}}
     <input id="image" name="image" type="file" accept="image/*"
            class="mt-1 block w-full text-sm text-gray-700">
     <p class="mt-1 text-xs text-gray-500">JPG/PNG/GIF/WEBP, até 4MB.</p>

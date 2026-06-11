@@ -1,14 +1,17 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Gestão do Catálogo') }}
         </h2>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-7xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
+                {{-- Separadores e Mensagens --}}
                 @include('admin.partials.tabs')
                 @include('admin.partials.flash')
 
@@ -17,12 +20,14 @@
                     Estes preços aplicam-se a todo o catálogo e a todas as t-shirts personalizadas.
                 </p>
 
+                {{-- Formulário de configuração global de preços --}}
                 <form method="POST" action="{{ route('admin.prices.update') }}" class="space-y-6">
                     @csrf
                     @method('PUT')
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
+                        {{-- Preço de catálogo sem desconto --}}
                         <div>
                             <x-input-label for="unit_price_catalog" value="Preço unitário — Catálogo (€)" />
                             <x-text-input id="unit_price_catalog" name="unit_price_catalog" type="number"
@@ -32,6 +37,7 @@
                             <x-input-error :messages="$errors->get('unit_price_catalog')" class="mt-2" />
                         </div>
 
+                        {{-- Preço de catálogo com desconto --}}
                         <div>
                             <x-input-label for="unit_price_catalog_discount" value="Preço unitário — Catálogo c/ desconto (€)" />
                             <x-text-input id="unit_price_catalog_discount" name="unit_price_catalog_discount" type="number"
@@ -41,6 +47,7 @@
                             <x-input-error :messages="$errors->get('unit_price_catalog_discount')" class="mt-2" />
                         </div>
 
+                        {{-- Preço de personalizadas sem desconto --}}
                         <div>
                             <x-input-label for="unit_price_own" value="Preço unitário — Personalizada (€)" />
                             <x-text-input id="unit_price_own" name="unit_price_own" type="number"
@@ -50,6 +57,7 @@
                             <x-input-error :messages="$errors->get('unit_price_own')" class="mt-2" />
                         </div>
 
+                        {{-- Preço de personalizadas com desconto --}}
                         <div>
                             <x-input-label for="unit_price_own_discount" value="Preço unitário — Personalizada c/ desconto (€)" />
                             <x-text-input id="unit_price_own_discount" name="unit_price_own_discount" type="number"
@@ -59,6 +67,7 @@
                             <x-input-error :messages="$errors->get('unit_price_own_discount')" class="mt-2" />
                         </div>
 
+                        {{-- Quantidade que ativa o desconto --}}
                         <div class="sm:col-span-2">
                             <x-input-label for="qty_discount" value="Quantidade a partir da qual aplica desconto" />
                             <x-text-input id="qty_discount" name="qty_discount" type="number"
@@ -70,6 +79,7 @@
                         </div>
                     </div>
 
+                    {{-- Botões de Ação --}}
                     <div class="flex items-center justify-end gap-3">
                         <x-primary-button>Guardar</x-primary-button>
                     </div>
