@@ -1,12 +1,15 @@
 <x-guest-layout>
+    {{-- Cabeçalho e Descrição --}}
     <h2 class="text-xl font-semibold text-gray-900 mb-2">Confirmar palavra-passe</h2>
     <p class="text-sm text-gray-500 mb-6">
         {{ __('Esta é uma área sensível. Confirma a tua palavra-passe para continuar.') }}
     </p>
 
+    {{-- Formulário de Confirmação de Palavra-passe --}}
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
 
+        {{-- Campo Palavra-passe --}}
         <div>
             <x-input-label for="password" :value="__('Palavra-passe')" />
             <x-text-input id="password" class="block mt-1 w-full"
@@ -16,6 +19,7 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
+        {{-- Botão de Submissão --}}
         <div class="flex justify-end mt-6">
             <x-primary-button>
                 {{ __('Confirmar') }}

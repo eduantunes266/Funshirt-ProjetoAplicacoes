@@ -1,18 +1,23 @@
 <x-guest-layout>
+    {{-- Cabeçalho e Descrição --}}
     <h2 class="text-xl font-semibold text-gray-900 mb-1">Entrar</h2>
     <p class="text-sm text-gray-500 mb-6">Bem-vindo de volta à FunShirt.</p>
 
+    {{-- Mensagem de Estado --}}
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
+    {{-- Formulário de Login --}}
     <form method="POST" action="{{ route('login') }}">
         @csrf
 
+        {{-- Campo Email --}}
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        {{-- Campo Palavra-passe --}}
         <div class="mt-4">
             <x-input-label for="password" :value="__('Password')" />
             <x-text-input id="password" class="block mt-1 w-full"
@@ -22,6 +27,7 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
+        {{-- Checkbox Lembrar-me --}}
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
@@ -29,18 +35,22 @@
             </label>
         </div>
 
+        {{-- Ações Adicionais --}}
         <div class="flex items-center justify-between mt-6">
+            {{-- Link Recuperar Palavra-passe --}}
             @if (Route::has('password.request'))
                 <a class="text-sm text-gray-600 hover:text-indigo-600 transition" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
 
+            {{-- Botão de Login --}}
             <x-primary-button class="ms-3">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
 
+        {{-- Link para Registo --}}
         <p class="mt-6 text-center text-sm text-gray-500">
             Ainda não tem conta?
             <a href="{{ route('register') }}" class="font-semibold text-indigo-600 hover:text-indigo-700">Criar conta</a>

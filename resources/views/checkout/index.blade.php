@@ -1,4 +1,5 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Finalizar Encomenda') }}
@@ -6,15 +7,19 @@
         <p class="text-sm text-gray-500 mt-0.5">Confirma os teus dados e escolhe a forma de pagamento.</p>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-2xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6 sm:p-8">
 
+                {{-- Mensagens Flash --}}
                 @include('admin.partials.flash')
 
+                {{-- Formulário de Checkout --}}
                 <form action="{{ route('checkout.store') }}" method="POST" class="space-y-5">
                     @csrf
 
+                    {{-- Campo NIF --}}
                     <div>
                         <x-input-label for="nif" value="NIF" />
                         <x-text-input id="nif" name="nif" type="text" class="mt-1 block w-full"
@@ -22,6 +27,7 @@
                         <x-input-error :messages="$errors->get('nif')" class="mt-2" />
                     </div>
 
+                    {{-- Campo Morada --}}
                     <div>
                         <x-input-label for="address" value="Morada de Envio" />
                         <x-text-input id="address" name="address" type="text" class="mt-1 block w-full"
@@ -31,6 +37,7 @@
 
                     <hr class="border-gray-200">
 
+                    {{-- Campo Método de Pagamento --}}
                     <div>
                         <x-input-label for="payment_type" value="Método de Pagamento" />
                         <select id="payment_type" name="payment_type" required
@@ -45,6 +52,7 @@
                         <x-input-error :messages="$errors->get('payment_type')" class="mt-2" />
                     </div>
 
+                    {{-- Campo Referência de Pagamento --}}
                     <div>
                         <x-input-label for="payment_ref" value="Referência de Pagamento" />
                         <x-text-input id="payment_ref" name="payment_ref" type="text" class="mt-1 block w-full"
@@ -55,6 +63,7 @@
                         <x-input-error :messages="$errors->get('payment_ref')" class="mt-2" />
                     </div>
 
+                    {{-- Campo Notas Opcionais --}}
                     <div>
                         <x-input-label for="notes" value="Notas (opcional)" />
                         <textarea id="notes" name="notes" rows="3"
@@ -62,6 +71,7 @@
                         <x-input-error :messages="$errors->get('notes')" class="mt-2" />
                     </div>
 
+                    {{-- Botão de Submissão --}}
                     <button type="submit"
                             class="w-full rounded-lg bg-emerald-600 text-white font-semibold py-3 shadow-sm hover:bg-emerald-700 transition">
                         Confirmar Encomenda e Pagar

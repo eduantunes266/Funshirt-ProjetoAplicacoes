@@ -1,18 +1,23 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('Gestão de Encomendas') }}
         </h2>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-6xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-6">
 
+                {{-- Mensagens Flash --}}
                 @include('admin.partials.flash')
 
+                {{-- Formulário de Filtros (Apenas para Administradores) --}}
                 @if(auth()->user()->isAdmin())
                     <form method="GET" action="{{ route('orders.index') }}" class="mb-5 flex flex-wrap items-end gap-3">
+                        {{-- Filtro de Estado --}}
                         <div>
                             <label for="status" class="block text-xs font-medium text-gray-500 mb-1">Estado</label>
                             <select name="status" id="status" class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -23,18 +28,21 @@
                             </select>
                         </div>
 
+                        {{-- Filtro de Data Inicial --}}
                         <div>
                             <label for="start_date" class="block text-xs font-medium text-gray-500 mb-1">Data inicial</label>
                             <input type="date" name="start_date" id="start_date" value="{{ request('start_date') }}"
                                    class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
 
+                        {{-- Filtro de Data Final --}}
                         <div>
                             <label for="end_date" class="block text-xs font-medium text-gray-500 mb-1">Data final</label>
                             <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}"
                                    class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                         </div>
 
+                        {{-- Filtro de Cliente --}}
                         <div>
                             <label for="customer" class="block text-xs font-medium text-gray-500 mb-1">Cliente (nome ou email)</label>
                             <input type="text" name="customer" id="customer" value="{{ request('customer') }}"
@@ -45,9 +53,11 @@
                         <a href="{{ route('orders.index') }}" class="text-sm text-gray-600 hover:underline">Limpar</a>
                     </form>
                 @else
+                    {{-- Mensagem para Funcionários Regulares --}}
                     <p class="mb-4 text-sm text-gray-600">A apresentar apenas encomendas pendentes (processamento logístico).</p>
                 @endif
 
+                {{-- Tabela de Encomendas --}}
                 <div class="overflow-x-auto -mx-4 sm:mx-0">
                     <table class="min-w-full text-sm">
                         <thead>
@@ -61,12 +71,15 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
+                            {{-- Itera sobre a lista de encomendas --}}
                             @forelse($orders as $order)
                                 <tr class="hover:bg-gray-50/60">
                                     <td class="px-4 py-3 font-semibold text-gray-900">#{{ $order->id }}</td>
                                     <td class="px-4 py-3 text-gray-700">{{ $order->date }}</td>
                                     <td class="px-4 py-3 text-gray-700">{{ $order->customer?->name ?? '#'.$order->customer_id }}</td>
                                     <td class="px-4 py-3 text-right text-gray-900">{{ number_format($order->total_price, 2, ',', ' ') }} €</td>
+                                    
+                                    {{-- Estado da Encomenda --}}
                                     <td class="px-4 py-3">
                                         @if($order->status === 'pending')
                                             <span class="inline-block rounded-full bg-amber-50 text-amber-700 text-xs font-semibold px-2.5 py-1 ring-1 ring-amber-200">Pendente</span>
@@ -76,6 +89,8 @@
                                             <span class="inline-block rounded-full bg-red-50 text-red-700 text-xs font-semibold px-2.5 py-1 ring-1 ring-red-200">Anulada</span>
                                         @endif
                                     </td>
+                                    
+                                    {{-- Ações --}}
                                     <td class="px-4 py-3 text-right">
                                         <a href="{{ route('orders.show', $order) }}" class="text-indigo-600 hover:underline font-medium">Detalhes</a>
                                     </td>
@@ -91,6 +106,7 @@
                     </table>
                 </div>
 
+                {{-- Paginação --}}
                 <div class="mt-4">
                     {{ $orders->links() }}
                 </div>

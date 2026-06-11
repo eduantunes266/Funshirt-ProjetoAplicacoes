@@ -1,4 +1,5 @@
 <section>
+    {{-- Cabeçalho da Secção --}}
     <header>
         <h2 class="text-lg font-semibold text-gray-900">
             {{ __('Dados pessoais') }}
@@ -9,15 +10,17 @@
         </p>
     </header>
 
+    {{-- Formulário para Reenviar Verificação de Email --}}
     <form id="send-verification" method="post" action="{{ route('verification.send') }}">
         @csrf
     </form>
 
+    {{-- Formulário de Atualização do Perfil --}}
     <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
 
-        <!-- Foto de perfil -->
+        {{-- Campo Foto de perfil --}}
         <div>
             <x-input-label :value="__('Foto de perfil')" />
             <div class="mt-2 flex items-center gap-4">
@@ -29,14 +32,14 @@
             <x-input-error class="mt-2" :messages="$errors->get('photo')" />
         </div>
 
-        <!-- Nome -->
+        {{-- Campo Nome --}}
         <div>
             <x-input-label for="name" :value="__('Nome')" />
             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
-        <!-- Email -->
+        {{-- Campo Email --}}
         <div>
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
@@ -61,7 +64,7 @@
             @endif
         </div>
 
-        <!-- Genero -->
+        {{-- Campo Género --}}
         <div>
             <x-input-label for="gender" :value="__('Genero')" />
             <select id="gender" name="gender" required
@@ -72,6 +75,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('gender')" />
         </div>
 
+        {{-- Botão de Guardar e Mensagem de Sucesso --}}
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Guardar') }}</x-primary-button>
 

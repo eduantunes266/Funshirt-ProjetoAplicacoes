@@ -3,6 +3,7 @@
 @endphp
 
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
@@ -11,6 +12,7 @@
                 </h2>
                 <p class="text-sm text-gray-500 mt-0.5">Escolhe a tua próxima t-shirt e personaliza-a a teu gosto.</p>
             </div>
+            {{-- Botão para o Carrinho --}}
             <a href="{{ route('cart.index') }}" class="hidden sm:inline-flex items-center gap-2 rounded-lg bg-indigo-50 text-indigo-700 px-3 py-1.5 text-sm font-semibold hover:bg-indigo-100 transition">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 Carrinho
@@ -18,12 +20,16 @@
         </div>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-7xl mx-auto">
 
+            {{-- Mensagens Flash --}}
             @include('admin.partials.flash')
 
+            {{-- Formulário de Filtros (Pesquisa e Categoria) --}}
             <form action="{{ url('/') }}" method="GET" class="mb-6 flex flex-wrap items-end gap-3 bg-white p-4 rounded-2xl shadow-sm ring-1 ring-gray-200">
+                {{-- Filtro de Pesquisa --}}
                 <div class="flex-1 min-w-[200px]">
                     <label class="block text-xs font-medium text-gray-500 mb-1">Pesquisar (nome ou descrição)</label>
                     <input type="text" name="search" value="{{ request('search') }}"
@@ -31,6 +37,7 @@
                            class="w-full rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
                 </div>
 
+                {{-- Filtro de Categoria --}}
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-1">Categoria</label>
                     <select name="category" class="rounded-lg border-gray-300 text-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -43,6 +50,7 @@
                     </select>
                 </div>
 
+                {{-- Botões do Formulário --}}
                 <button type="submit" class="rounded-lg bg-indigo-600 text-white text-sm font-semibold px-4 py-2 shadow-sm hover:bg-indigo-700 transition">
                     Pesquisar
                 </button>
@@ -54,21 +62,26 @@
                 @endif
             </form>
 
+            {{-- Grelha do Catálogo --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {{-- Itera sobre as T-shirts do catálogo --}}
                 @forelse($tshirts as $tshirt)
                     <div class="bg-white rounded-2xl shadow-sm ring-1 ring-gray-200 flex flex-col overflow-hidden transition hover:shadow-md hover:-translate-y-0.5 hover:ring-indigo-200">
+                        {{-- Imagem da T-shirt --}}
                         <div class="p-4 flex items-center justify-center bg-gradient-to-br from-slate-50 to-indigo-50/60 aspect-square">
                             <img src="{{ asset('storage/tshirt_images/' . $tshirt->image_url) }}"
                                  alt="{{ $tshirt->name }}"
                                  class="h-44 w-full object-contain">
                         </div>
 
+                        {{-- Detalhes e Formulário de Adição ao Carrinho --}}
                         <div class="p-4 flex-1 flex flex-col">
                             <h3 class="font-semibold text-gray-900 line-clamp-1">{{ $tshirt->name }}</h3>
                             <p class="text-xs text-gray-500 mt-1 h-12 overflow-hidden">
                                 {{ Str::limit($tshirt->description, 90) }}
                             </p>
 
+                            {{-- Preços da T-shirt --}}
                             <div class="mt-3 flex items-baseline gap-2">
                                 <p class="text-xl font-bold text-indigo-700">
                                     {{ number_format($price->unit_price_catalog, 2, ',', ' ') }} €
@@ -78,6 +91,7 @@
                                 A partir de {{ $price->qty_discount }} un.: {{ number_format($price->unit_price_catalog_discount, 2, ',', ' ') }} € cada
                             </p>
 
+                            {{-- Formulário para escolher Tamanho, Cor, Quantidade e adicionar ao carrinho --}}
                             <form action="{{ route('cart.add', $tshirt->id) }}" method="POST" class="mt-auto space-y-2">
                                 @csrf
 
@@ -112,6 +126,7 @@
                 @endforelse
             </div>
 
+            {{-- Paginação --}}
             <div class="mt-6">
                 {{ $tshirts->links() }}
             </div>

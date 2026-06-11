@@ -1,3 +1,4 @@
+{{-- Propriedades do Componente --}}
 @props([
     'colorCode' => null,
     'image' => null,
@@ -13,6 +14,7 @@
         default => 160,
     };
 
+    // Imagem base da t-shirt
     $baseImageUrl = $colorCode
         ? asset('storage/tshirt_base/' . $colorCode . '.jpg')
         : asset('storage/tshirt_base/plain_white.png');
@@ -21,11 +23,16 @@
     $designUrl = $imageUrl ?: ($image ? asset('storage/tshirt_images/' . $image) : null);
 @endphp
 
+{{-- Contentor da T-Shirt com Design Sobreposto --}}
 <div {{ $attributes->merge(['class' => 'tshirt-preview']) }}
      style="position: relative; width: {{ $sizePx }}px; height: {{ $sizePx }}px;">
+     
+    {{-- T-Shirt Base --}}
     <img src="{{ $baseImageUrl }}"
          alt="T-shirt base"
          style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;">
+         
+    {{-- Imagem de Design (Sobreposição) --}}
     @if ($designUrl)
         <img src="{{ $designUrl }}"
              alt="Design"

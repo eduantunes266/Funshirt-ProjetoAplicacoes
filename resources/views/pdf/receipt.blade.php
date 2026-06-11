@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Recibo #{{ $order->id }}</title>
+    {{-- Estilos para o PDF --}}
     <style>
         body { font-family: Arial, sans-serif; color: #1f2937; line-height: 1.5; font-size: 12px; }
         .header { padding: 16px 20px; background: #4f46e5; color: #ffffff; border-radius: 6px; margin-bottom: 24px; }
@@ -21,11 +22,13 @@
     </style>
 </head>
 <body>
+    {{-- Cabeçalho do Documento --}}
     <div class="header">
         <h1>FunShirt</h1>
         <p>Recibo oficial de compra</p>
     </div>
 
+    {{-- Informações da Encomenda --}}
     <table class="meta-grid">
         <tr><td class="label">Encomenda</td><td><strong>#{{ $order->id }}</strong></td></tr>
         <tr><td class="label">Data</td><td>{{ $order->date }}</td></tr>
@@ -34,6 +37,7 @@
         <tr><td class="label">Morada de envio</td><td>{{ $order->address }}</td></tr>
     </table>
 
+    {{-- Tabela de Itens --}}
     <h3>Itens adquiridos</h3>
     <table class="items">
         <thead>
@@ -60,10 +64,12 @@
         </tbody>
     </table>
 
+    {{-- Caixa de Total --}}
     <div class="total-box">
         Total pago: <span>{{ number_format($order->total_price, 2, ',', ' ') }} €</span>
     </div>
 
+    {{-- Rodapé --}}
     <div class="footer">FunShirt · Documento gerado automaticamente</div>
 </body>
 </html>

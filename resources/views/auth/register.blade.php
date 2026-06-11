@@ -1,22 +1,27 @@
 <x-guest-layout>
+    {{-- Cabeçalho e Descrição --}}
     <h2 class="text-xl font-semibold text-gray-900 mb-1">Criar conta</h2>
     <p class="text-sm text-gray-500 mb-6">Junta-te à FunShirt em poucos segundos.</p>
 
+    {{-- Formulário de Registo --}}
     <form method="POST" action="{{ route('register') }}">
         @csrf
 
+        {{-- Campo Nome --}}
         <div>
             <x-input-label for="name" :value="__('Nome')" />
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
 
+        {{-- Campo Email --}}
         <div class="mt-4">
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
 
+        {{-- Campo Género --}}
         <div class="mt-4">
             <x-input-label for="gender" :value="__('Género')" />
             <select id="gender" name="gender" required
@@ -28,6 +33,7 @@
             <x-input-error :messages="$errors->get('gender')" class="mt-2" />
         </div>
 
+        {{-- Campo Palavra-passe --}}
         <div class="mt-4">
             <x-input-label for="password" :value="__('Palavra-passe')" />
             <x-text-input id="password" class="block mt-1 w-full"
@@ -37,6 +43,7 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
+        {{-- Campo Confirmar Palavra-passe --}}
         <div class="mt-4">
             <x-input-label for="password_confirmation" :value="__('Confirmar palavra-passe')" />
             <x-text-input id="password_confirmation" class="block mt-1 w-full"
@@ -45,11 +52,14 @@
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>
 
+        {{-- Ações Finais --}}
         <div class="flex items-center justify-between mt-6">
+            {{-- Link para Login --}}
             <a class="text-sm text-gray-600 hover:text-indigo-600 transition" href="{{ route('login') }}">
                 {{ __('Já tenho conta') }}
             </a>
 
+            {{-- Botão Submeter Registo --}}
             <x-primary-button>
                 {{ __('Criar conta') }}
             </x-primary-button>

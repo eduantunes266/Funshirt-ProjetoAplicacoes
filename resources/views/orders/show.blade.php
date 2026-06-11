@@ -1,4 +1,5 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -8,10 +9,14 @@
         </div>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-5xl mx-auto space-y-6">
 
+            {{-- Grelha Superior com Informação da Encomenda e Faturação --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                {{-- Cartão com Informação Geral da Encomenda --}}
                 <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
                     <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Informação geral</h3>
                     <dl class="space-y-2.5 text-sm">
@@ -32,8 +37,10 @@
                         </div>
                     </dl>
 
+                    {{-- Ações Disponíveis para Encomendas Pendentes --}}
                     @if($order->status === 'pending')
                         <div class="mt-5 space-y-3 border-t border-gray-100 pt-4">
+                            {{-- Marcar como Fechada --}}
                             <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST">
                                 @csrf
                                 @method('PUT')
@@ -43,6 +50,7 @@
                                 </button>
                             </form>
 
+                            {{-- Apenas Administradores podem anular encomendas --}}
                             @if(auth()->user()->isAdmin())
                                 <form action="{{ route('orders.updateStatus', $order->id) }}" method="POST" class="space-y-2">
                                     @csrf
@@ -58,6 +66,7 @@
                         </div>
                     @endif
 
+                    {{-- Notas do Cliente --}}
                     @if($order->notes)
                         <div class="mt-5 border-t border-gray-100 pt-4">
                             <h4 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Notas do cliente</h4>
@@ -65,6 +74,7 @@
                         </div>
                     @endif
 
+                    {{-- Motivo de Anulação --}}
                     @if($order->status === 'canceled' && $order->reason_for_cancellation)
                         <div class="mt-5 border-t border-gray-100 pt-4">
                             <h4 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-1">Motivo da anulação</h4>
@@ -72,6 +82,7 @@
                         </div>
                     @endif
 
+                    {{-- Link para Descarregar Recibo --}}
                     @if($order->status === 'closed' && $order->receipt_url)
                         @can('downloadReceipt', $order)
                             <a href="{{ route('receipts.download', $order->id) }}"
@@ -83,6 +94,7 @@
                     @endif
                 </div>
 
+                {{-- Cartão com Informação de Faturação e Pagamento --}}
                 <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
                     <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Dados de faturação</h3>
                     <dl class="space-y-2.5 text-sm">
@@ -94,6 +106,7 @@
                 </div>
             </div>
 
+            {{-- Tabela com Itens da Encomenda --}}
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-6">
                 <h3 class="text-xs uppercase tracking-wider font-semibold text-gray-500 mb-4">Itens da encomenda</h3>
 
@@ -110,6 +123,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
+                            {{-- Itera sobre os itens encomendados --}}
                             @foreach($items as $item)
                                 <tr class="hover:bg-gray-50/60">
                                     <td class="px-3 py-2">

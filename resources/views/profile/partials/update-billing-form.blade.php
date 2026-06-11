@@ -1,4 +1,5 @@
 <section>
+    {{-- Cabeçalho da Secção --}}
     <header>
         <h2 class="text-lg font-semibold text-gray-900">
             {{ __('Dados de faturacao') }}
@@ -9,11 +10,12 @@
         </p>
     </header>
 
+    {{-- Formulário de Atualização de Faturação --}}
     <form method="post" action="{{ route('profile.billing.update') }}" class="mt-6 space-y-6">
         @csrf
         @method('patch')
 
-        <!-- NIF -->
+        {{-- Campo NIF --}}
         <div>
             <x-input-label for="nif" :value="__('NIF')" />
             <x-text-input id="nif" name="nif" type="text" class="mt-1 block w-full"
@@ -21,7 +23,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('nif')" />
         </div>
 
-        <!-- Morada -->
+        {{-- Campo Morada --}}
         <div>
             <x-input-label for="address" :value="__('Morada de entrega')" />
             <textarea id="address" name="address" rows="3"
@@ -29,7 +31,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('address')" />
         </div>
 
-        <!-- Tipo de pagamento -->
+        {{-- Campo Tipo de Pagamento Preferencial --}}
         <div>
             <x-input-label for="default_payment_type" :value="__('Tipo de pagamento preferencial')" />
             <select id="default_payment_type" name="default_payment_type"
@@ -42,7 +44,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('default_payment_type')" />
         </div>
 
-        <!-- Referencia de pagamento -->
+        {{-- Campo Referência de Pagamento Preferencial --}}
         <div>
             <x-input-label for="default_payment_ref" :value="__('Referencia de pagamento preferencial')" />
             <x-text-input id="default_payment_ref" name="default_payment_ref" type="text" class="mt-1 block w-full"
@@ -53,6 +55,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('default_payment_ref')" />
         </div>
 
+        {{-- Botão de Guardar e Mensagem de Sucesso --}}
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Guardar') }}</x-primary-button>
 

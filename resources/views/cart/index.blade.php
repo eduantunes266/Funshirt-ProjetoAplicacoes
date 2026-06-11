@@ -1,4 +1,5 @@
 <x-app-layout>
+    {{-- Cabeçalho da Página --}}
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ __('O meu Carrinho') }}
@@ -6,12 +7,15 @@
         <p class="text-sm text-gray-500 mt-0.5">Revê os artigos antes de finalizar a encomenda.</p>
     </x-slot>
 
+    {{-- Área Principal --}}
     <div class="py-6">
         <div class="max-w-6xl mx-auto">
             <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl p-4 sm:p-8">
 
+                {{-- Mensagens Flash --}}
                 @include('admin.partials.flash')
 
+                {{-- Verifica se o carrinho está vazio --}}
                 @if(empty($cart))
                     <div class="text-center py-10">
                         <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-indigo-50 text-indigo-600 mb-4">
@@ -23,16 +27,19 @@
                         </a>
                     </div>
                 @else
+                    {{-- Lista de Itens no Carrinho --}}
                     <div class="divide-y divide-gray-100">
                         @foreach($cart as $key => $item)
                             <div class="py-4 flex flex-wrap items-center gap-4">
 
+                                {{-- Pré-visualização da T-shirt --}}
                                 <x-tshirt-preview
                                     :color-code="$item['color_code'] ?? null"
                                     :image-url="$item['display_image_url']"
                                     size="md"
                                     class="shrink-0" />
 
+                                {{-- Detalhes da T-shirt (Nome, Descrição, Preço, Etiquetas) --}}
                                 <div class="min-w-[200px] flex-1">
                                     <h3 class="font-semibold text-gray-900">{{ $item['name'] }}</h3>
                                     <p class="text-sm text-gray-500 mt-1">{{ $item['description'] }}</p>
@@ -53,6 +60,7 @@
                                     </div>
                                 </div>
 
+                                {{-- Formulário para atualizar tamanho, cor e quantidade --}}
                                 <form action="{{ route('cart.update', $key) }}" method="POST" class="flex flex-wrap items-end gap-2">
                                     @csrf
 
@@ -85,11 +93,13 @@
                                     </button>
                                 </form>
 
+                                {{-- Subtotal do Item --}}
                                 <div class="text-right min-w-[100px]">
                                     <div class="text-xs text-gray-500">Subtotal</div>
                                     <div class="font-bold text-gray-900">{{ number_format($item['subtotal'], 2, ',', ' ') }} €</div>
                                 </div>
 
+                                {{-- Formulário para remover o item --}}
                                 <form action="{{ route('cart.remove', $key) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="text-red-600 hover:text-red-700 text-sm font-medium">Remover</button>
@@ -98,7 +108,9 @@
                         @endforeach
                     </div>
 
+                    {{-- Rodapé do Carrinho com Ações Finais --}}
                     <div class="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 pt-4">
+                        {{-- Botão Limpar Carrinho --}}
                         <form action="{{ route('cart.clear') }}" method="POST"
                               onsubmit="return confirm('Esvaziar o carrinho?')">
                             @csrf
@@ -107,6 +119,7 @@
                             </button>
                         </form>
 
+                        {{-- Total e Botão Pagar --}}
                         <div class="flex items-center gap-4">
                             <div class="text-right">
                                 <div class="text-sm text-gray-500">Total</div>
@@ -119,6 +132,7 @@
                         </div>
                     </div>
 
+                    {{-- Nota Informativa sobre Descontos --}}
                     <p class="text-xs text-gray-500 mt-3">
                         Desconto de quantidade aplica-se a partir de {{ $priceRule->qty_discount }} unidades do mesmo item.
                     </p>
