@@ -35,7 +35,7 @@
 
                             @auth
                                 @if (auth()->user()->isCustomer())
-                                    <a href="{{ route('custom-images.index') }}" class="hover:text-indigo-600 transition">As minhas imagens</a>
+                                    <a href="{{ route('custom-images.index') }}" class="hover:text-indigo-600 transition">T-Shirts Personalizadas</a>
                                     <a href="{{ route('my-orders.index') }}" class="hover:text-indigo-600 transition">As minhas encomendas</a>
                                 @endif
                                 @if (auth()->user()->isEmployee() || auth()->user()->isAdmin())
