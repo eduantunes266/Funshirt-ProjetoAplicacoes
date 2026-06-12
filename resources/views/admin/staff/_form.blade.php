@@ -59,7 +59,7 @@
     <div>
         <x-input-label for="password" :value="$isEdit ? __('Nova palavra-passe') : __('Palavra-passe')" />
         <x-text-input id="password" name="password" type="password" class="mt-1 block w-full"
-                      @required(! $isEdit) autocomplete="new-password" />
+                      :required="! $isEdit" autocomplete="new-password" />
         @if ($isEdit)
             <p class="mt-1 text-xs text-gray-500">Deixe em branco para manter a palavra-passe atual.</p>
         @endif
@@ -70,7 +70,7 @@
     <div>
         <x-input-label for="password_confirmation" :value="__('Confirmar palavra-passe')" />
         <x-text-input id="password_confirmation" name="password_confirmation" type="password" class="mt-1 block w-full"
-                      @required(! $isEdit) autocomplete="new-password" />
+                      :required="! $isEdit" autocomplete="new-password" />
     </div>
 
     {{-- Botões de Ação --}}

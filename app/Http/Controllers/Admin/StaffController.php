@@ -7,23 +7,39 @@ use App\Http\Requests\StoreStaffRequest;
 use App\Http\Requests\UpdateStaffRequest;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class StaffController extends Controller
 {
     // Lista todos os funcionários e administradores
-    public function index(): View
+    public function index(Request $request): View
     {
         // Verifica as permissões para ver utilizadores
         $this->authorize('viewAny', User::class);
 
+        // Obtém os parâmetros de pesquisa e estado do pedido
+        $search = trim((string) $request->input('search', ''));
+        $status = $request->input('status', 'ativos');
+
         // Vai buscar os utilizadores que sejam do tipo Funcionário (F) ou Administrador (A)
         $staff = User::whereIn('user_type', ['F', 'A'])
-            ->select('id', 'name', 'email', 'user_type', 'gender', 'blocked', 'photo_url')
+            // Filtra por estado (removidos, bloqueados)
+            ->when($status === 'removidos', fn ($q) => $q->onlyTrashed())
+            ->when($status === 'bloqueados', fn ($q) => $q->where('blocked', true))
+            // Se houver pesquisa, procura pelo nome ou email
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->select('id', 'name', 'email', 'user_type', 'gender', 'blocked', 'photo_url', 'deleted_at')
             ->orderBy('name')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
-        return view('admin.staff.index', compact('staff'));
+        return view('admin.staff.index', compact('staff', 'search', 'status'));
     }
 
     // Mostra o formulário para criar um novo funcionário/administrador

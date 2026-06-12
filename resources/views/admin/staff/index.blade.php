@@ -24,6 +24,19 @@
                     </a>
                 </div>
 
+                {{-- Formulário de Filtros (Pesquisa e Estado) --}}
+                <form method="get" action="{{ route('admin.staff.index') }}" class="mb-4 flex flex-wrap items-center gap-3">
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Procurar por nome ou email"
+                           class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
+                    <select name="status" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm text-sm">
+                        <option value="ativos" @selected($status === 'ativos')>Ativos</option>
+                        <option value="bloqueados" @selected($status === 'bloqueados')>Bloqueados</option>
+                        <option value="removidos" @selected($status === 'removidos')>Removidos</option>
+                    </select>
+                    <x-primary-button>Filtrar</x-primary-button>
+                    <a href="{{ route('admin.staff.index') }}" class="text-sm text-gray-600 hover:underline">Limpar</a>
+                </form>
+
                 {{-- Tabela de Equipa (Staff) --}}
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-sm">
@@ -52,7 +65,9 @@
                                     
                                     {{-- Estado da conta (Bloqueado ou Ativo) --}}
                                     <td class="px-3 py-3">
-                                        @if ($person->blocked)
+                                        @if ($person->trashed())
+                                            <span class="rounded-full bg-gray-100 text-gray-700 px-2.5 py-1 text-xs font-semibold ring-1 ring-gray-200">Removido</span>
+                                        @elseif ($person->blocked)
                                             <span class="rounded-full bg-red-50 text-red-700 px-2.5 py-1 text-xs font-semibold ring-1 ring-red-200">Bloqueado</span>
                                         @else
                                             <span class="rounded-full bg-emerald-50 text-emerald-700 px-2.5 py-1 text-xs font-semibold ring-1 ring-emerald-200">Ativo</span>
@@ -62,26 +77,30 @@
                                     {{-- Ações sobre o funcionário --}}
                                     <td class="px-3 py-3">
                                         <div class="flex items-center justify-end gap-3">
-                                            <a href="{{ route('admin.staff.edit', $person) }}" class="text-indigo-600 hover:underline font-medium">Editar</a>
+                                            @unless ($person->trashed())
+                                                <a href="{{ route('admin.staff.edit', $person) }}" class="text-indigo-600 hover:underline font-medium">Editar</a>
 
-                                            {{-- Impede que o utilizador autenticado bloqueie ou remova a sua própria conta --}}
-                                            @if ($person->id !== auth()->id())
-                                                <form method="post" action="{{ route('admin.accounts.toggle-block', $person) }}">
-                                                    @csrf
-                                                    @method('patch')
-                                                    <button type="submit" class="text-amber-600 hover:underline font-medium">
-                                                        {{ $person->blocked ? 'Desbloquear' : 'Bloquear' }}
-                                                    </button>
-                                                </form>
-                                                <form method="post" action="{{ route('admin.staff.destroy', $person) }}"
-                                                      onsubmit="return confirm('Remover a conta de {{ $person->name }}?')">
-                                                    @csrf
-                                                    @method('delete')
-                                                    <button type="submit" class="text-red-600 hover:underline font-medium">Remover</button>
-                                                </form>
+                                                {{-- Impede que o utilizador autenticado bloqueie ou remova a sua própria conta --}}
+                                                @if ($person->id !== auth()->id())
+                                                    <form method="post" action="{{ route('admin.accounts.toggle-block', $person) }}">
+                                                        @csrf
+                                                        @method('patch')
+                                                        <button type="submit" class="text-amber-600 hover:underline font-medium">
+                                                            {{ $person->blocked ? 'Desbloquear' : 'Bloquear' }}
+                                                        </button>
+                                                    </form>
+                                                    <form method="post" action="{{ route('admin.staff.destroy', $person) }}"
+                                                          onsubmit="return confirm('Remover a conta de {{ $person->name }}?')">
+                                                        @csrf
+                                                        @method('delete')
+                                                        <button type="submit" class="text-red-600 hover:underline font-medium">Remover</button>
+                                                    </form>
+                                                @else
+                                                    <span class="text-xs text-gray-400">(a sua conta)</span>
+                                                @endif
                                             @else
-                                                <span class="text-xs text-gray-400">(a sua conta)</span>
-                                            @endif
+                                                <span class="text-xs text-gray-400">—</span>
+                                            @endunless
                                         </div>
                                     </td>
                                 </tr>
