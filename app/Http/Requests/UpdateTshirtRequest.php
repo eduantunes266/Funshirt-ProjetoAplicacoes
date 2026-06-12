@@ -4,13 +4,22 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para a atualização de uma Imagem do Catálogo (TshirtImage).
+ */
 class UpdateTshirtRequest extends FormRequest
 {
+    /**
+     * Apenas Administradores podem atualizar imagens do catálogo.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
+    /**
+     * Ao atualizar, não é obrigatório enviar nova imagem.
+     */
     public function rules(): array
     {
         return [

@@ -4,14 +4,23 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação (FormRequest) para a finalização de uma compra (Checkout).
+ */
 class CheckoutRequest extends FormRequest
 {
-
+    /**
+     * Determina se o utilizador está autorizado a fazer este pedido.
+     * Só os clientes (C) podem fazer encomendas.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isCustomer() ?? false;
     }
 
+    /**
+     * Define as regras de validação aplicáveis aos dados enviados no checkout.
+     */
     public function rules(): array
     {
         $rules = [
@@ -22,14 +31,18 @@ class CheckoutRequest extends FormRequest
             'notes' => ['nullable', 'string', 'max:1000'],
         ];
 
+        // Adiciona validação específica baseada no tipo de pagamento escolhido
         switch ($this->input('payment_type')) {
             case 'Visa':
+                // Visa: Começa com 4 e tem exatamente 16 dígitos
                 $rules['payment_ref'][] = 'regex:/^4\d{15}$/';
                 break;
             case 'PayPal':
+                // PayPal: Tem de ser um e-mail válido
                 $rules['payment_ref'][] = 'email';
                 break;
             case 'MB WAY':
+                // MB WAY: Começa com 9 e tem exatamente 9 dígitos
                 $rules['payment_ref'][] = 'regex:/^9\d{8}$/';
                 break;
         }
@@ -37,6 +50,9 @@ class CheckoutRequest extends FormRequest
         return $rules;
     }
 
+    /**
+     * Define as mensagens de erro personalizadas para este pedido.
+     */
     public function messages(): array
     {
         return [

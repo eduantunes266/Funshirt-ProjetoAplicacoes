@@ -4,13 +4,22 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para a alteração dos Preços Globais da Loja.
+ */
 class UpdatePriceRequest extends FormRequest
 {
+    /**
+     * Apenas Administradores têm permissão para alterar preços.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
+    /**
+     * Validações de preços base e valores de desconto. O desconto não pode exceder o valor normal.
+     */
     public function rules(): array
     {
         return [

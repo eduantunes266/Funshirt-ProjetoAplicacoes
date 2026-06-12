@@ -4,14 +4,22 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para a atualização de uma Imagem Personalizada por um Cliente.
+ */
 class UpdateCustomImageRequest extends FormRequest
 {
-
+    /**
+     * Apenas clientes podem alterar as suas próprias imagens.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isCustomer() ?? false;
     }
 
+    /**
+     * A nova imagem é opcional (pode querer apenas mudar o nome ou descrição).
+     */
     public function rules(): array
     {
         return [

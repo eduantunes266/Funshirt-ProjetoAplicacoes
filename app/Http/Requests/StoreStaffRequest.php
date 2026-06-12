@@ -6,14 +6,22 @@ use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
+/**
+ * Pedido de Validação para a criação de um novo membro do Staff (Funcionário ou Administrador).
+ */
 class StoreStaffRequest extends FormRequest
 {
-
+    /**
+     * Apenas Administradores podem criar novas contas de Staff.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
+    /**
+     * O staff precisa de nome, email único, tipo (F ou A), género e palavra-passe segura.
+     */
     public function rules(): array
     {
         return [

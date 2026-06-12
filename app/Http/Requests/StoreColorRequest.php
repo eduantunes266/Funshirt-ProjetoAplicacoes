@@ -4,13 +4,23 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para a criação de uma nova Cor para as t-shirts base.
+ */
 class StoreColorRequest extends FormRequest
 {
+    /**
+     * Apenas os Administradores podem adicionar cores.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
+    /**
+     * O código e o nome da cor são obrigatórios.
+     * Além disso, uma cor base deve ter uma imagem representativa da t-shirt com essa cor.
+     */
     public function rules(): array
     {
         return [

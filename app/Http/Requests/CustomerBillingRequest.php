@@ -4,23 +4,33 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para os dados de faturação e pagamento de um Cliente.
+ */
 class CustomerBillingRequest extends FormRequest
 {
-
+    /**
+     * Determina se o utilizador tem permissão para alterar dados de faturação.
+     */
     public function authorize(): bool
     {
         return $this->user()->user_type === 'C';
     }
 
+    /**
+     * Define as regras de validação para a faturação do cliente.
+     */
     public function rules(): array
     {
         $rules = [
             'nif' => ['nullable', 'digits:9'],
             'address' => ['nullable', 'string', 'max:255'],
+            // Se preencher a referência, tem de preencher o tipo e vice-versa
             'default_payment_type' => ['nullable', 'required_with:default_payment_ref', 'in:Visa,PayPal,MB WAY'],
             'default_payment_ref' => ['nullable', 'required_with:default_payment_type', 'string', 'max:255'],
         ];
 
+        // Validação específica baseada no tipo de pagamento padrão escolhido
         switch ($this->input('default_payment_type')) {
             case 'Visa':
                 $rules['default_payment_ref'][] = 'regex:/^4\d{15}$/';
@@ -36,6 +46,9 @@ class CustomerBillingRequest extends FormRequest
         return $rules;
     }
 
+    /**
+     * Mensagens de erro em português para os erros de validação.
+     */
     public function messages(): array
     {
         return [

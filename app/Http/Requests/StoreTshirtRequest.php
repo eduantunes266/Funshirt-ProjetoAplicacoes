@@ -4,13 +4,22 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Pedido de Validação para a criação de uma nova Imagem de T-shirt (do Catálogo).
+ */
 class StoreTshirtRequest extends FormRequest
 {
+    /**
+     * Apenas os Administradores podem adicionar imagens ao catálogo.
+     */
     public function authorize(): bool
     {
         return $this->user()?->isAdmin() ?? false;
     }
 
+    /**
+     * Define as regras: nome é obrigatório, categoria opcional, e a imagem é obrigatória com um limite de 4MB.
+     */
     public function rules(): array
     {
         return [
