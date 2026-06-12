@@ -76,10 +76,9 @@ class OrderManagementController extends Controller
      */
     public function show(Request $request, Order $order): View
     {
-        // Se for funcionário, só pode abrir encomendas pendentes
-        if ($request->user()->isEmployee()) {
-            abort_unless($order->status === 'pending', 403);
-        }
+        // Funcionários e Administradores podem ver o detalhe de qualquer encomenda.
+        // O index já filtra para que os funcionários apenas vejam as pendentes na listagem,
+        // mas eles precisam de manter acesso ao detalhe de uma encomenda mesmo após a fecharem.
 
         // Carrega os dados principais do cliente
         $order->load('customer:id,name,email');
