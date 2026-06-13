@@ -18,6 +18,9 @@ class CheckoutController extends Controller
     // Mostra a página de checkout
     public function index(): View|RedirectResponse
     {
+        // O checkout é exclusivo de clientes (administradores e funcionários não têm acesso)
+        abort_unless(auth()->user()?->isCustomer(), 403);
+
         // Se o carrinho estiver vazio, volta para a página do carrinho
         if (empty(session('cart', []))) {
             return redirect()->route('cart.index');
@@ -88,6 +91,11 @@ class CheckoutController extends Controller
             ];
         }
 
+        // Garante que o total respeita os limites aceites pela plataforma de pagamentos
+        if ($total < 0.01 || $total > 999999.99) {
+            return back()->with('error', 'O total da encomenda excede o valor máximo permitido.');
+        }
+
         // Tenta processar o pagamento através da plataforma externa
         $paymentError = $this->processPayment(
             $request->payment_type,
@@ -146,6 +154,9 @@ class CheckoutController extends Controller
     // Mostra a página de sucesso do checkout
     public function success(): View
     {
+        // Página exclusiva de clientes (consistente com o resto do fluxo de checkout)
+        abort_unless(auth()->user()?->isCustomer(), 403);
+
         return view('checkout.success');
     }
 

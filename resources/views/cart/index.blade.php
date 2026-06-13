@@ -125,10 +125,13 @@
                                 <div class="text-sm text-gray-500">Total</div>
                                 <div class="text-2xl font-bold text-gray-900">{{ number_format($total, 2, ',', ' ') }} €</div>
                             </div>
-                            <a href="{{ route('checkout.index') }}"
-                               class="rounded-lg bg-emerald-600 text-white font-semibold px-5 py-3 shadow-sm hover:bg-emerald-700 transition">
-                                Ir para pagamento
-                            </a>
+                            {{-- O checkout é exclusivo de clientes; anónimos são encaminhados para login --}}
+                            @unless(auth()->check() && ! auth()->user()->isCustomer())
+                                <a href="{{ route('checkout.index') }}"
+                                   class="rounded-lg bg-emerald-600 text-white font-semibold px-5 py-3 shadow-sm hover:bg-emerald-700 transition">
+                                    Ir para pagamento
+                                </a>
+                            @endunless
                         </div>
                     </div>
 
